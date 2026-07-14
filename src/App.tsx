@@ -6,6 +6,12 @@ import ProjectDetail from './components/ProjectDetail';
 import CAPALogger from './components/CAPALogger';
 import Sidebar from './components/Sidebar';
 import PPAPDashboard from './components/PPAPDashboard';
+import UserManagement from './components/UserManagement';
+import { 
+  PPAPReasonLibrary, PPAPRejectReasonLibrary, PPAPInterimStatus, 
+  PPAPRoles, PPAPTemplates, PPAPRequests, PPAPUserAssignment, 
+  PPAPMassDownload, PPAPReports 
+} from './components/PPAPSubmenus';
 import { 
   BarChart3, Layers, ShieldAlert, Library, Loader2, AlertCircle, Info, Activity,
   Package, Landmark, Settings, Users, Truck, ShieldCheck, HelpCircle, HardDrive, Cpu, Lock, ChevronRight, User,
@@ -418,7 +424,7 @@ export default function App() {
         );
       case 'ppap':
       case 'ppap-new':
-      case 'ppap-tools':
+      case 'ppap-dashboard':
         return (
           <PPAPDashboard 
             projects={projects}
@@ -427,6 +433,30 @@ export default function App() {
             onSelectProject={handleSelectProject}
           />
         );
+      case 'ppap-library-reason':
+        return <PPAPReasonLibrary />;
+      case 'ppap-library-reject-reason':
+        return <PPAPRejectReasonLibrary />;
+      case 'ppap-library-interim-status':
+        return <PPAPInterimStatus />;
+      case 'ppap-library-roles':
+        return <PPAPRoles />;
+      case 'ppap-templates':
+        return <PPAPTemplates />;
+      case 'ppap-requests':
+        return <PPAPRequests />;
+      case 'ppap-user-assignment':
+        return <PPAPUserAssignment />;
+      case 'ppap-mass-download':
+        return <PPAPMassDownload />;
+      case 'ppap-reports':
+        return <PPAPReports />;
+      case 'user-management-users':
+        return <UserManagement subTab="users" />;
+      case 'user-management-roles':
+        return <UserManagement subTab="roles" />;
+      case 'user-management-menus':
+        return <UserManagement subTab="menus" />;
       case 'product':
         return (
           <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-xs space-y-6 animate-fadeIn">
@@ -806,7 +836,24 @@ export default function App() {
               <Menu className="w-5 h-5 text-gray-700" />
             </button>
             <span className="font-bold font-display text-base text-gray-900 tracking-tight capitalize">
-              {activeTab === 'dashboard' ? 'Overview Dashboard' : activeTab.replace('-', ' ')}
+              {(() => {
+                if (activeTab === 'dashboard') return 'Overview Dashboard';
+                if (activeTab === 'apqp-new') return 'Initialize APQP';
+                if (activeTab === 'ppap' || activeTab === 'ppap-dashboard') return 'PPAP Dashboard';
+                if (activeTab === 'ppap-library-reason') return 'PPAP Submission Reasons';
+                if (activeTab === 'ppap-library-reject-reason') return 'PPAP Rejection Reasons';
+                if (activeTab === 'ppap-library-interim-status') return 'PPAP Interim Approvals';
+                if (activeTab === 'ppap-library-roles') return 'PPAP Sign-off Roles';
+                if (activeTab === 'ppap-templates') return 'PSW & PPAP Templates';
+                if (activeTab === 'ppap-requests') return 'OEM Submission Demands';
+                if (activeTab === 'ppap-user-assignment') return 'Quality Engineer Assignments';
+                if (activeTab === 'ppap-mass-download') return 'PPAP Bulk Document Compiler';
+                if (activeTab === 'ppap-reports') return 'PPAP Performance Metrics';
+                if (activeTab === 'user-management-users') return 'User Registry Database';
+                if (activeTab === 'user-management-roles') return 'System Role Authorities';
+                if (activeTab === 'user-management-menus') return 'Menu Access Authorization';
+                return activeTab.replace('-', ' ');
+              })()}
             </span>
             <span className="text-gray-300">/</span>
             <span className="text-xs text-gray-400 font-mono">
