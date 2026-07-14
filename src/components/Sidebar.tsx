@@ -11,9 +11,9 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ activeTab, onTabChange, isOpen, onClose }: SidebarProps) {
-  const [isPpapExpanded, setIsPpapExpanded] = useState<boolean>(true);
-  const [isLibraryExpanded, setIsLibraryExpanded] = useState<boolean>(true);
-  const [isUserManagementExpanded, setIsUserManagementExpanded] = useState<boolean>(true);
+  const [isPpapExpanded, setIsPpapExpanded] = useState<boolean>(false);
+  const [isLibraryExpanded, setIsLibraryExpanded] = useState<boolean>(false);
+  const [isUserManagementExpanded, setIsUserManagementExpanded] = useState<boolean>(false);
 
   // Auto-expand PPAP or User Management if any sub-tab is active
   useEffect(() => {

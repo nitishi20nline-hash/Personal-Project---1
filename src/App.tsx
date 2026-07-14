@@ -20,7 +20,7 @@ import {
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<string>('product');
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const [projects, setProjects] = useState<APQPProject[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   

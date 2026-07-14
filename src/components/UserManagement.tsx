@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Plus, Search, UserPlus, Mail, MoreVertical, Check, X, Shield, Lock, 
   Settings, Layers, ChevronDown, CheckCircle, HelpCircle, Save, Info, Key, Edit, Trash,
@@ -96,9 +96,30 @@ interface UserManagementProps {
 }
 
 export default function UserManagement({ subTab }: UserManagementProps) {
-  const [users, setUsers] = useState<User[]>(INITIAL_USERS);
-  const [roles, setRoles] = useState<Role[]>(INITIAL_ROLES);
-  const [permissions, setPermissions] = useState<Record<string, MenuPermission[]>>(INITIAL_PERMISSIONS);
+  const [users, setUsers] = useState<User[]>(() => {
+    const saved = localStorage.getItem('empower_users');
+    return saved ? JSON.parse(saved) : INITIAL_USERS;
+  });
+  const [roles, setRoles] = useState<Role[]>(() => {
+    const saved = localStorage.getItem('empower_roles');
+    return saved ? JSON.parse(saved) : INITIAL_ROLES;
+  });
+  const [permissions, setPermissions] = useState<Record<string, MenuPermission[]>>(() => {
+    const saved = localStorage.getItem('empower_permissions');
+    return saved ? JSON.parse(saved) : INITIAL_PERMISSIONS;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('empower_users', JSON.stringify(users));
+  }, [users]);
+
+  useEffect(() => {
+    localStorage.setItem('empower_roles', JSON.stringify(roles));
+  }, [roles]);
+
+  useEffect(() => {
+    localStorage.setItem('empower_permissions', JSON.stringify(permissions));
+  }, [permissions]);
 
   // Users views state
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
@@ -112,18 +133,22 @@ export default function UserManagement({ subTab }: UserManagementProps) {
   const [emailId, setEmailId] = useState('');
   const [contact, setContact] = useState('');
   const [userRole, setUserRole] = useState('Administrator');
+  const [editingUser, setEditingUser] = useState<User | null>(null);
 
   // Roles views state
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const [roleName, setRoleName] = useState('');
   const [roleDesc, setRoleDesc] = useState('');
+  const [editingRole, setEditingRole] = useState<Role | null>(null);
 
   // Menus state
   const [selectedRoleForMenus, setSelectedRoleForMenus] = useState('Administrator');
-  const [activeMenuAccordion, setActiveMenuAccordion] = useState(true);
-  const [localPermissions, setLocalPermissions] = useState<MenuPermission[]>(
-    INITIAL_PERMISSIONS['Administrator']
-  );
+  const [activeMenuAccordion, setActiveMenuAccordion] = useState(false);
+  const [localPermissions, setLocalPermissions] = useState<MenuPermission[]>(() => {
+    const saved = localStorage.getItem('empower_permissions');
+    const currentPermissions = saved ? JSON.parse(saved) : INITIAL_PERMISSIONS;
+    return currentPermissions['Administrator'] || INITIAL_PERMISSIONS['Administrator'];
+  });
 
   // Sync menu state when role changes
   const handleRoleChangeForMenus = (role: string) => {
@@ -162,7 +187,21 @@ export default function UserManagement({ subTab }: UserManagementProps) {
     setLocalPermissions(updated);
   };
 
-  // Add User action
+  // Edit User action handler
+  const handleEditUserClick = (u: User) => {
+    setEditingUser(u);
+    const names = u.fullName.split(' ');
+    setFirstName(names[0] || '');
+    setLastName(names.slice(1).join(' ') || '');
+    setUsername(u.username);
+    setEmailId(u.email);
+    setContact(u.contact);
+    setPassword('••••••••');
+    setUserRole(u.role);
+    setIsUserModalOpen(true);
+  };
+
+  // Add/Edit User action
   const handleAddUserSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!username || !firstName || !lastName || !password || !emailId || !userRole) {
@@ -170,20 +209,34 @@ export default function UserManagement({ subTab }: UserManagementProps) {
       return;
     }
 
-    const newUser: User = {
-      id: `USR-${users.length + 1}`,
-      fullName: `${firstName} ${lastName}`,
-      username: username,
-      contact: contact || '-',
-      isAdmin: userRole === 'Administrator',
-      role: userRole,
-      userViews: userRole === 'Administrator' ? 'All' : 'PPAP, APQP',
-      facility: 'Detroit Giga 1',
-      createdOn: new Date().toISOString().split('T')[0],
-      email: emailId
-    };
+    if (editingUser) {
+      setUsers(users.map(u => u.id === editingUser.id ? {
+        ...u,
+        fullName: `${firstName} ${lastName}`,
+        username: username,
+        contact: contact || '-',
+        isAdmin: userRole === 'Administrator',
+        role: userRole,
+        userViews: userRole === 'Administrator' ? 'All' : 'PPAP, APQP',
+        email: emailId
+      } : u));
+      setEditingUser(null);
+    } else {
+      const newUser: User = {
+        id: `USR-${users.length + 1}`,
+        fullName: `${firstName} ${lastName}`,
+        username: username,
+        contact: contact || '-',
+        isAdmin: userRole === 'Administrator',
+        role: userRole,
+        userViews: userRole === 'Administrator' ? 'All' : 'PPAP, APQP',
+        facility: 'Detroit Giga 1',
+        createdOn: new Date().toISOString().split('T')[0],
+        email: emailId
+      };
+      setUsers([newUser, ...users]);
+    }
 
-    setUsers([newUser, ...users]);
     setIsUserModalOpen(false);
     
     // Reset form
@@ -196,7 +249,15 @@ export default function UserManagement({ subTab }: UserManagementProps) {
     setUserRole('Administrator');
   };
 
-  // Add Role action
+  // Edit Role action handler
+  const handleEditRoleClick = (r: Role) => {
+    setEditingRole(r);
+    setRoleName(r.name);
+    setRoleDesc(r.description);
+    setIsRoleModalOpen(true);
+  };
+
+  // Add/Edit Role action
   const handleAddRoleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!roleName) {
@@ -204,12 +265,31 @@ export default function UserManagement({ subTab }: UserManagementProps) {
       return;
     }
 
-    const newRole: Role = {
-      name: roleName,
-      description: roleDesc || 'No description listed.'
-    };
+    if (editingRole) {
+      // Editing
+      setRoles(roles.map(r => r.name === editingRole.name ? { ...r, name: roleName, description: roleDesc } : r));
+      
+      // Also update permissions key if the role name changed
+      if (editingRole.name !== roleName) {
+        setPermissions(prev => {
+          const updated = { ...prev };
+          if (updated[editingRole.name]) {
+            updated[roleName] = updated[editingRole.name];
+            delete updated[editingRole.name];
+          }
+          return updated;
+        });
+      }
+      setEditingRole(null);
+    } else {
+      // Adding
+      const newRole: Role = {
+        name: roleName,
+        description: roleDesc || 'No description listed.'
+      };
+      setRoles([...roles, newRole]);
+    }
 
-    setRoles([...roles, newRole]);
     setIsRoleModalOpen(false);
 
     // Reset form
@@ -258,7 +338,17 @@ export default function UserManagement({ subTab }: UserManagementProps) {
 
             {/* Custom Vertical styled Add Button from screenshot */}
             <button 
-              onClick={() => setIsUserModalOpen(true)}
+              onClick={() => {
+                setEditingUser(null);
+                setUsername('');
+                setFirstName('');
+                setLastName('');
+                setPassword('');
+                setEmailId('');
+                setContact('');
+                setUserRole('Administrator');
+                setIsUserModalOpen(true);
+              }}
               className="flex flex-col items-center justify-center text-[#0ea5e9] hover:text-sky-600 transition-colors cursor-pointer self-end sm:self-auto px-4"
               id="add-user-btn"
             >
@@ -282,7 +372,7 @@ export default function UserManagement({ subTab }: UserManagementProps) {
                   <th className="p-3.5">Facility</th>
                   <th className="p-3.5 text-center">Notify</th>
                   <th className="p-3.5">Created On</th>
-                  <th className="p-3.5 text-center w-16">Action</th>
+                  <th className="p-3.5 text-center w-24">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 bg-white">
@@ -349,11 +439,30 @@ export default function UserManagement({ subTab }: UserManagementProps) {
                       {/* Created date */}
                       <td className="p-3.5 text-gray-400 font-mono text-[11px]">{u.createdOn}</td>
 
-                      {/* Action trigger */}
+                      {/* Action triggers (consistent with roles table) */}
                       <td className="p-3.5 text-center">
-                        <button className="p-1 hover:bg-slate-100 rounded text-gray-400 hover:text-gray-600 cursor-pointer transition-colors">
-                          <MoreVertical className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center justify-center gap-2">
+                          <button 
+                            onClick={() => handleEditUserClick(u)}
+                            className="p-1 hover:bg-slate-100 rounded text-gray-400 hover:text-sky-600 transition-colors cursor-pointer"
+                            title="Edit User"
+                          >
+                            <Edit className="w-3.5 h-3.5" />
+                          </button>
+                          <button 
+                            onClick={() => {
+                              if (u.username === 'User') {
+                                alert('The default primary Administrator user cannot be deleted.');
+                                return;
+                              }
+                              setUsers(users.filter(user => user.id !== u.id));
+                            }}
+                            className="p-1 hover:bg-slate-100 rounded text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
+                            title="Delete User"
+                          >
+                            <Trash className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -370,14 +479,16 @@ export default function UserManagement({ subTab }: UserManagementProps) {
             </table>
           </div>
 
-          {/* Form Modal: Add User */}
+          {/* Form Modal: Add/Edit User */}
           {isUserModalOpen && (
             <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 animate-fadeIn">
               <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-gray-100 space-y-4">
                 <div className="flex justify-between items-center border-b border-gray-150 pb-3">
                   <div className="flex items-center gap-2">
                     <UserPlus className="w-5 h-5 text-[#0ea5e9]" />
-                    <span className="font-bold text-gray-950 text-sm">Add New Quality User</span>
+                    <span className="font-bold text-gray-950 text-sm">
+                      {editingUser ? 'Edit Quality User' : 'Add New Quality User'}
+                    </span>
                   </div>
                   <button 
                     onClick={() => setIsUserModalOpen(false)}
@@ -398,18 +509,19 @@ export default function UserManagement({ subTab }: UserManagementProps) {
                         required
                         placeholder="e.g. jdoe" 
                         value={username}
+                        disabled={!!editingUser}
                         onChange={(e) => setUsername(e.target.value)}
-                        className="w-full p-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-[#0ea5e9]"
+                        className="w-full p-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-[#0ea5e9] disabled:bg-slate-50 disabled:text-gray-400"
                       />
                     </div>
 
                     <div>
                       <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">
-                        Password <span className="text-red-500">*</span>
+                        Password {editingUser ? '' : <span className="text-red-500">*</span>}
                       </label>
                       <input 
                         type="password" 
-                        required
+                        required={!editingUser}
                         placeholder="••••••••" 
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
@@ -562,7 +674,7 @@ export default function UserManagement({ subTab }: UserManagementProps) {
                     <td className="p-3.5 text-center">
                       <div className="flex items-center justify-center gap-2">
                         <button 
-                          onClick={() => alert(`Editing role: ${r.name}`)}
+                          onClick={() => handleEditRoleClick(r)}
                           className="p-1 hover:bg-slate-100 rounded text-gray-400 hover:text-sky-600 transition-colors cursor-pointer"
                           title="Edit Role"
                         >
@@ -596,7 +708,9 @@ export default function UserManagement({ subTab }: UserManagementProps) {
                 <div className="flex justify-between items-center border-b border-gray-150 pb-3">
                   <div className="flex items-center gap-2">
                     <Shield className="w-5 h-5 text-[#0ea5e9]" />
-                    <span className="font-bold text-gray-950 text-sm">Add New QLM Role</span>
+                    <span className="font-bold text-gray-950 text-sm">
+                      {editingRole ? 'Edit QLM Role' : 'Add New QLM Role'}
+                    </span>
                   </div>
                   <button 
                     onClick={() => setIsRoleModalOpen(false)}
@@ -616,8 +730,9 @@ export default function UserManagement({ subTab }: UserManagementProps) {
                       required
                       placeholder="e.g. Component Engineer" 
                       value={roleName}
+                      disabled={editingRole?.name === 'Administrator'}
                       onChange={(e) => setRoleName(e.target.value)}
-                      className="w-full p-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-[#0ea5e9]"
+                      className="w-full p-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-[#0ea5e9] disabled:bg-slate-50 disabled:text-gray-400"
                     />
                   </div>
 

@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Check, FileText, Download, AlertCircle, Trash2, Plus, Search, Building, 
   CheckCircle2, Clock, ArrowRight, Lock, ShieldCheck, FileSpreadsheet, 
-  Layers, User, RefreshCw, Play, BarChart3, AlertTriangle, ShieldAlert
+  Layers, User, RefreshCw, Play, BarChart3, AlertTriangle, ShieldAlert,
+  Edit
 } from 'lucide-react';
 
 // ==========================================
@@ -407,97 +408,314 @@ export function PPAPRoles() {
 // 5. PPAP TEMPLATES VAULT
 // ==========================================
 export function PPAPTemplates() {
-  const [selectedPreview, setSelectedPreview] = useState<string | null>(null);
+  const [templates, setTemplates] = useState(() => {
+    const saved = localStorage.getItem('empower_ppap_templates');
+    return saved ? JSON.parse(saved) : [
+      { id: 'psw', name: 'Part Submission Warrant (PSW) Standard Form', defaultSubmissionLevel: 'Level 03', elementCount: 18, status: 'Active' },
+      { id: 'fmea', name: 'Design/Process FMEA Risk matrix Template', defaultSubmissionLevel: 'Level 03', elementCount: 18, status: 'Active' },
+      { id: 'cp', name: 'Manufacturing Process Control Plan', defaultSubmissionLevel: 'Level 03', elementCount: 18, status: 'Active' },
+      { id: 'grr', name: 'MSA Gage R&R Study (ANOVA method)', defaultSubmissionLevel: 'Level 02', elementCount: 12, status: 'Active' },
+      { id: 'ps', name: 'Process Capability Studies Cpk Calc', defaultSubmissionLevel: 'Level 03', elementCount: 15, status: 'Inactive' }
+    ];
+  });
 
-  const templates = [
-    { id: 'psw', title: 'Part Submission Warrant (PSW) Standard Form', format: 'XLSX', size: '240 KB', desc: 'AIAG Edition 4 Standard warrant warrant layout for formal level submissions.' },
-    { id: 'fmea', title: 'Design/Process FMEA Risk matrix Template', format: 'XLSX', size: '420 KB', desc: 'Standard Failure Mode Effects Analysis worksheet compiling severity & RPN.' },
-    { id: 'cp', title: 'Manufacturing Process Control Plan', format: 'XLSX', size: '180 KB', desc: 'Inspection frequency layout mapping key features to metrology checks.' },
-    { id: 'grr', title: 'MSA Gage R&R Study (ANOVA method)', format: 'XLSM', size: '310 KB', desc: 'Automated statistical template calculating equipment variation margins.' },
-    { id: 'ps', title: 'Process Capability Studies Cpk Calc', format: 'XLSX', size: '290 KB', desc: 'Calculates bilateral process distribution scores from sample inputs.' },
-  ];
+  useEffect(() => {
+    localStorage.setItem('empower_ppap_templates', JSON.stringify(templates));
+  }, [templates]);
+
+  // Form / Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState<any | null>(null);
+
+  // Form fields matching the screenshot inputs
+  const [name, setName] = useState('');
+  const [level, setLevel] = useState('Level 03');
+  const [elementCount, setElementCount] = useState(18);
+  const [enabled, setEnabled] = useState(true);
+
+  const handleCreateClick = () => {
+    setEditingTemplate(null);
+    setName('');
+    setLevel('Level 03');
+    setElementCount(18);
+    setEnabled(true);
+    setIsModalOpen(true);
+  };
+
+  const handleEditClick = (t: any) => {
+    setEditingTemplate(t);
+    setName(t.name);
+    setLevel(t.defaultSubmissionLevel);
+    setElementCount(t.elementCount);
+    setEnabled(t.status === 'Active');
+    setIsModalOpen(true);
+  };
+
+  const handleDeleteClick = (id: string) => {
+    setTemplates(templates.filter((t: any) => t.id !== id));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) return;
+
+    if (editingTemplate) {
+      setTemplates(templates.map((t: any) => t.id === editingTemplate.id ? {
+        ...t,
+        name,
+        defaultSubmissionLevel: level,
+        elementCount: Number(elementCount) || 18,
+        status: enabled ? 'Active' : 'Inactive'
+      } : t));
+    } else {
+      const newTpl = {
+        id: `tpl-${Date.now()}`,
+        name,
+        defaultSubmissionLevel: level,
+        elementCount: Number(elementCount) || 18,
+        status: enabled ? 'Active' : 'Inactive'
+      };
+      setTemplates([newTpl, ...templates]);
+    }
+    setIsModalOpen(false);
+  };
 
   return (
     <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-xs space-y-6 animate-fadeIn">
-      <div>
-        <h2 className="text-lg font-bold font-display text-gray-950">AIAG Template Repository</h2>
-        <p className="text-xs text-gray-400 mt-1">Pre-validated spreadsheet templates fully compliant with automotive standards.</p>
-      </div>
-
-      <div className="divide-y divide-gray-150 border border-gray-150 rounded-2xl overflow-hidden">
-        {templates.map((t) => (
-          <div key={t.id} className="p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-4 hover:bg-slate-50/50 transition-colors">
-            <div className="flex gap-3.5">
-              <div className="p-2.5 bg-zinc-950 text-white rounded-xl h-10 w-10 flex items-center justify-center shrink-0 border border-zinc-800">
-                <FileSpreadsheet className="w-5 h-5 text-lime-400" />
-              </div>
-              <div className="space-y-0.5">
-                <span className="font-semibold text-gray-950 text-xs sm:text-sm block">{t.title}</span>
-                <span className="text-[11px] text-gray-400 block">{t.desc}</span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 shrink-0">
-              <span className="text-[10px] font-mono text-gray-400 font-bold uppercase mr-2">{t.format} • {t.size}</span>
-              <button 
-                onClick={() => setSelectedPreview(t.title)}
-                className="px-3.5 py-1.5 border border-gray-200 hover:border-zinc-900 rounded-xl text-xs font-semibold cursor-pointer transition-colors bg-white hover:bg-zinc-50"
-              >
-                Preview Document
-              </button>
-              <button 
-                onClick={() => alert(`Initiating mock secure file transmission for: ${t.title}`)}
-                className="p-1.5 bg-lime-500 hover:bg-lime-600 text-zinc-950 border border-lime-400 hover:border-lime-500 rounded-xl flex items-center justify-center cursor-pointer transition-colors"
-                title="Download Template"
-              >
-                <Download className="w-4 h-4" />
-              </button>
-            </div>
+      {/* Header Row with Create Button on the Right */}
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-gray-150 pb-4">
+        <div className="flex items-center gap-2.5">
+          <div className="p-2 bg-sky-50 text-[#0ea5e9] rounded-xl">
+            <FileSpreadsheet className="w-5 h-5 text-[#0ea5e9]" />
           </div>
-        ))}
+          <div>
+            <h2 className="text-xl font-bold font-display text-gray-955">PPAP Templates Vault</h2>
+            <p className="text-xs text-gray-400 mt-0.5">Configure Part Submission Warrant forms, default levels, and element counts.</p>
+          </div>
+        </div>
+
+        {/* Custom Vertical styled Create Button on the Right */}
+        <button 
+          onClick={handleCreateClick}
+          className="flex flex-col items-center justify-center text-[#0ea5e9] hover:text-sky-600 transition-colors cursor-pointer px-4 self-end sm:self-auto"
+          id="create-template-btn"
+        >
+          <Plus className="w-6 h-6 text-[#0ea5e9]" />
+          <span className="text-[10px] font-bold uppercase tracking-wider mt-1">Create</span>
+        </button>
       </div>
 
-      {/* Document Preview Modal */}
-      {selectedPreview && (
+      {/* Templates Table consistent with other governance tables */}
+      <div className="overflow-x-auto border border-gray-150 rounded-xl">
+        <table className="w-full text-left text-xs border-collapse min-w-[700px]">
+          <thead className="bg-slate-50 text-slate-500 font-mono text-[10px] uppercase border-b border-gray-150 font-bold">
+            <tr>
+              <th className="p-3.5">Template Name</th>
+              <th className="p-3.5">Default Submission Level</th>
+              <th className="p-3.5 text-center">Element Count</th>
+              <th className="p-3.5 text-center">Status</th>
+              <th className="p-3.5 text-center w-24">Action</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100 bg-white">
+            {templates.map((t: any) => (
+              <tr key={t.id} className="hover:bg-slate-50/50 transition-colors">
+                {/* Template Name */}
+                <td className="p-3.5">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-1.5 bg-zinc-100 text-gray-600 rounded-lg">
+                      <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+                    </div>
+                    <span className="font-semibold text-gray-950 text-xs sm:text-sm">{t.name}</span>
+                  </div>
+                </td>
+
+                {/* Default Submission Level */}
+                <td className="p-3.5">
+                  <span className="px-2 py-1 bg-sky-50 text-[#0ea5e9] border border-sky-100 rounded-md font-mono text-[11px] font-bold">
+                    {t.defaultSubmissionLevel}
+                  </span>
+                </td>
+
+                {/* Element Count */}
+                <td className="p-3.5 text-center font-semibold text-gray-600">
+                  {t.elementCount} Elements
+                </td>
+
+                {/* Status (Active or Inactive) */}
+                <td className="p-3.5 text-center">
+                  <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                    t.status === 'Active' 
+                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-150' 
+                      : 'bg-slate-100 text-slate-600 border border-slate-200'
+                  }`}>
+                    <span className={`h-1.5 w-1.5 rounded-full ${t.status === 'Active' ? 'bg-emerald-500' : 'bg-slate-400'}`} />
+                    {t.status}
+                  </span>
+                </td>
+
+                {/* Actions */}
+                <td className="p-3.5 text-center">
+                  <div className="flex items-center justify-center gap-2">
+                    <button 
+                      onClick={() => handleEditClick(t)}
+                      className="p-1 hover:bg-slate-100 rounded text-gray-400 hover:text-sky-600 transition-colors cursor-pointer"
+                      title="Edit Template"
+                    >
+                      <Edit className="w-3.5 h-3.5" />
+                    </button>
+                    <button 
+                      onClick={() => handleDeleteClick(t.id)}
+                      className="p-1 hover:bg-slate-100 rounded text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
+                      title="Delete Template"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* High Fidelity Create / Edit Template Modal matching requested design & layout exactly */}
+      {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-xl w-full p-6 space-y-4 shadow-xl border border-gray-100 animate-fadeIn">
-            <div className="flex justify-between items-center border-b border-gray-100 pb-3">
-              <span className="font-bold text-sm text-gray-900">Live AIAG Document Preview</span>
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 space-y-6 shadow-xl border border-gray-100 animate-fadeIn">
+            <div className="flex justify-between items-center border-b border-gray-150 pb-3">
+              <div className="flex items-center gap-2">
+                <FileSpreadsheet className="w-5 h-5 text-[#0ea5e9]" />
+                <span className="font-bold text-gray-950 text-sm">
+                  {editingTemplate ? 'Edit PPAP Template' : 'Add New PPAP Template'}
+                </span>
+              </div>
               <button 
-                onClick={() => setSelectedPreview(null)}
-                className="text-xs hover:text-red-500 cursor-pointer font-bold"
+                onClick={() => setIsModalOpen(false)}
+                className="text-xs hover:text-red-500 cursor-pointer font-bold p-1 hover:bg-slate-100 rounded"
               >
                 ✕ Close
               </button>
             </div>
-            <div className="space-y-3">
-              <h4 className="font-bold text-gray-950 text-xs sm:text-sm">{selectedPreview}</h4>
-              <div className="p-4 bg-slate-50 border border-gray-200 rounded-xl font-mono text-[10px] text-gray-500 space-y-1">
-                <p className="font-bold text-gray-800">[SECURE PREVIEW HEADER - AUTOMOTIVE SYSTEM CORE]</p>
-                <p>MAPPED EXCEL FIELD: A1: PSW Warrant Title</p>
-                <p>MAPPED EXCEL FIELD: A2: Part No: MS-SB-8009</p>
-                <p>MAPPED EXCEL FIELD: A3: Approved By: Corporate Quality Hub</p>
-                <p>MAPPED EXCEL FIELD: B1: Metrology Tolerance Matrix (Cpk Checksums Verified)</p>
-                <p className="text-lime-600">✓ Digital Signature Verification: APPROVED (SHA-256 Validated)</p>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-5">
+                
+                {/* Name field aligned right on desktop */}
+                <div className="grid grid-cols-1 sm:grid-cols-[180px_1fr] items-center gap-4">
+                  <div className="sm:text-right flex items-center sm:justify-end gap-1 font-semibold text-gray-800 text-xs sm:text-sm">
+                    <span>Name</span>
+                    <span className="text-red-500 font-bold">★</span>
+                  </div>
+                  <div className="w-full">
+                    <input 
+                      type="text" 
+                      required
+                      placeholder="e.g. Standard AIAG Tier-1 Template" 
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="w-full p-2.5 border border-gray-300 rounded focus:outline-none focus:border-[#0ea5e9] text-xs sm:text-sm bg-white"
+                    />
+                  </div>
+                </div>
+
+                {/* Default Submission Level field aligned right on desktop */}
+                <div className="grid grid-cols-1 sm:grid-cols-[180px_1fr] items-center gap-4">
+                  <div className="sm:text-right flex flex-col sm:items-end justify-center font-semibold text-gray-800 text-xs sm:text-sm leading-tight">
+                    <div className="flex items-center gap-1 sm:justify-end">
+                      <span>Default Submission</span>
+                      <span className="text-red-500 font-bold">★</span>
+                    </div>
+                    <span className="block sm:text-right text-[11px] text-gray-400 font-normal">Level</span>
+                  </div>
+                  <div className="w-full">
+                    <select 
+                      value={level}
+                      onChange={(e) => setLevel(e.target.value)}
+                      className="w-full p-2.5 border border-gray-300 rounded focus:outline-none focus:border-[#0ea5e9] text-xs sm:text-sm bg-white"
+                    >
+                      <option value="Level 01">Level 01</option>
+                      <option value="Level 02">Level 02</option>
+                      <option value="Level 03">Level 03</option>
+                      <option value="Level 04">Level 04</option>
+                      <option value="Level 05">Level 05</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Element Count field aligned right on desktop */}
+                <div className="grid grid-cols-1 sm:grid-cols-[180px_1fr] items-center gap-4">
+                  <div className="sm:text-right flex items-center sm:justify-end gap-1 font-semibold text-gray-800 text-xs sm:text-sm">
+                    <span>Element Count</span>
+                    <span className="text-red-500 font-bold">★</span>
+                  </div>
+                  <div className="w-full">
+                    <input 
+                      type="number" 
+                      required
+                      min="1"
+                      max="18"
+                      value={elementCount}
+                      onChange={(e) => setElementCount(parseInt(e.target.value) || 18)}
+                      className="w-full p-2.5 border border-gray-300 rounded focus:outline-none focus:border-[#0ea5e9] text-xs sm:text-sm bg-white"
+                    />
+                  </div>
+                </div>
+
+                {/* PPAP Enabled field with green button toggle switch aligned right on desktop */}
+                <div className="grid grid-cols-1 sm:grid-cols-[180px_1fr] items-center gap-4">
+                  <div className="sm:text-right flex items-center sm:justify-end font-semibold text-gray-800 text-xs sm:text-sm">
+                    <span>PPAP Enabled</span>
+                  </div>
+                  <div className="flex items-center">
+                    <button
+                      type="button"
+                      onClick={() => setEnabled(!enabled)}
+                      className={`relative inline-flex h-7 w-16 shrink-0 cursor-pointer rounded border transition-colors duration-200 ease-in-out focus:outline-none ${
+                        enabled ? 'bg-[#7cb342] border-[#689f38]' : 'bg-gray-200 border-gray-300'
+                      }`}
+                      style={{ boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)' }}
+                    >
+                      <span className="sr-only">PPAP Enabled</span>
+                      <span
+                        className={`pointer-events-none relative inline-block h-5 w-6 transform rounded bg-white shadow-sm border border-gray-200 transition duration-200 ease-in-out ${
+                          enabled ? 'translate-x-8' : 'translate-x-0'
+                        }`}
+                        style={{ height: '22px', width: '24px', top: '2px', left: '2px' }}
+                      />
+                      <span className={`absolute top-1/2 -translate-y-1/2 text-[10px] font-bold text-white transition-opacity duration-200 select-none ${
+                        enabled ? 'left-2.5 opacity-100 font-sans' : 'right-2.5 opacity-0 text-gray-400 font-sans'
+                      }`}>
+                        Yes
+                      </span>
+                      <span className={`absolute top-1/2 -translate-y-1/2 text-[10px] font-bold transition-opacity duration-200 select-none ${
+                        enabled ? 'left-2.5 opacity-0 font-sans' : 'right-2.5 opacity-100 text-gray-400 font-sans'
+                      }`}>
+                        No
+                      </span>
+                    </button>
+                  </div>
+                </div>
+
               </div>
-            </div>
-            <div className="flex justify-end gap-2 pt-2 text-xs">
-              <button 
-                onClick={() => setSelectedPreview(null)}
-                className="px-4 py-2 border border-gray-200 hover:bg-slate-100 rounded-xl cursor-pointer"
-              >
-                Dismiss
-              </button>
-              <button 
-                onClick={() => {
-                  alert(`Downloading ${selectedPreview}`);
-                  setSelectedPreview(null);
-                }}
-                className="px-4 py-2 bg-zinc-950 text-white rounded-xl cursor-pointer font-bold hover:bg-zinc-800"
-              >
-                Download Excel File
-              </button>
-            </div>
+
+              {/* Form Actions */}
+              <div className="flex justify-end gap-2 pt-4 border-t border-gray-150">
+                <button 
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 border border-gray-200 hover:bg-slate-50 text-xs font-semibold rounded-xl cursor-pointer transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit"
+                  className="px-4 py-2 bg-zinc-950 hover:bg-zinc-900 text-white text-xs font-bold rounded-xl cursor-pointer transition-colors"
+                >
+                  Save Template
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
