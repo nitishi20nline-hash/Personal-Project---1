@@ -1,0 +1,6 @@
+{
+  "name": "Quality Lifecycle Manager (QLM)",
+  "description": "A full-stack Quality Lifecycle Management (QLM) platform featuring APQP project tracking, FMEA failure risk analyses, PPAP part submission status, and CAPA corrective action flows with AI assistance.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,2534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Empower QLM - Quality Lifecycle Management</title>
+  <style>
+    /* Google Fonts Import */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+    /* Design System Variables */
+    :root {
+      --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      
+      --color-primary: #0f172a;    /* Slate 900 */
+      --color-primary-light: #1e293b; /* Slate 800 */
+      --color-accent: #2563eb;     /* Blue 600 */
+      --color-accent-hover: #1d4ed8;
+      --color-bg: #f8fafc;         /* Slate 50 */
+      --color-card: #ffffff;
+      --color-border: #e2e8f0;     /* Slate 200 */
+      --color-text: #334155;       /* Slate 700 */
+      --color-text-dark: #0f172a;  /* Slate 900 */
+      --color-text-muted: #64748b; /* Slate 500 */
+      
+      --color-success: #10b981;    /* Emerald 500 */
+      --color-success-bg: #ecfdf5;
+      --color-success-border: #a7f3d0;
+      
+      --color-warning: #f59e0b;    /* Amber 500 */
+      --color-warning-bg: #fffbeb;
+      --color-warning-border: #fde68a;
+      
+      --color-danger: #ef4444;     /* Rose 500 */
+      --color-danger-bg: #fff5f5;
+      --color-danger-border: #fee2e2;
+
+      --radius-sm: 6px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      
+      --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Base Reset */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+    button, select, input, textarea {
+      font-family: inherit;
+      font-size: inherit;
+      border: none;
+      background: none;
+    }
+    button {
+      cursor: pointer;
+    }
+
+    /* Layout Containers */
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Sticky Header */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background-color: var(--color-card);
+      border-bottom: 1px solid var(--color-border);
+      box-shadow: var(--shadow-sm);
+    }
+    .header-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      height: 4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .logo-icon {
+      background-color: var(--color-primary);
+      color: white;
+      padding: 0.5rem;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      width: 2.25rem;
+      height: 2.25rem;
+    }
+    .logo-text h1 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--color-text-dark);
+      letter-spacing: -0.025em;
+    }
+    .logo-text p {
+      font-size: 0.65rem;
+      font-family: var(--font-mono);
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-top: -1px;
+    }
+    .nav-tabs {
+      display: flex;
+      gap: 0.25rem;
+    }
+    .nav-btn {
+      padding: 0.5rem 0.875rem;
+      border-radius: var(--radius-md);
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-family: var(--font-mono);
+      letter-spacing: 0.05em;
+      color: var(--color-text-muted);
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .nav-btn:hover {
+      background-color: var(--color-bg);
+      color: var(--color-text-dark);
+    }
+    .nav-btn.active {
+      background-color: var(--color-primary);
+      color: white;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Main Workspace */
+    .app-main {
+      flex: 1;
+      max-width: 1280px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    /* Screen Wrapper and Animations */
+    .screen {
+      display: none;
+      animation: fadeIn 0.25s ease-out forwards;
+    }
+    .screen.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Typography & Structural Headers */
+    .section-header {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--color-border);
+      padding-bottom: 1.25rem;
+    }
+    @media (min-width: 640px) {
+      .section-header {
+        flex-direction: row;
+        align-items: center;
+      }
+    }
+    .section-title h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--color-text-dark);
+      letter-spacing: -0.02em;
+    }
+    .section-title p {
+      font-size: 0.825rem;
+      color: var(--color-text-muted);
+      margin-top: 0.125rem;
+    }
+    .btn-action {
+      background-color: var(--color-accent);
+      color: white;
+      font-size: 0.825rem;
+      font-weight: 600;
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .btn-action:hover {
+      background-color: var(--color-accent-hover);
+    }
+    .btn-action-danger {
+      background-color: var(--color-danger);
+    }
+    .btn-action-danger:hover {
+      background-color: #dc2626;
+    }
+    .btn-secondary {
+      background-color: white;
+      color: var(--color-text);
+      border: 1px solid var(--color-border);
+    }
+    .btn-secondary:hover {
+      background-color: var(--color-bg);
+      color: var(--color-text-dark);
+    }
+
+    /* Grid & Cards System */
+    .grid-dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+    .card-kpi {
+      background-color: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .kpi-icon {
+      width: 3rem;
+      height: 3rem;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+    .kpi-icon-blue { background-color: #eff6ff; color: #3b82f6; }
+    .kpi-icon-emerald { background-color: #ecfdf5; color: #10b981; }
+    .kpi-icon-amber { background-color: #fffbeb; color: #f59e0b; }
+    .kpi-icon-rose { background-color: #fff5f5; color: #f43f5e; }
+    
+    .kpi-data h4 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      font-family: var(--font-mono);
+      color: var(--color-text-muted);
+      font-weight: 600;
+    }
+    .kpi-data p {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--color-text-dark);
+      letter-spacing: -0.03em;
+      margin-top: 0.125rem;
+    }
+
+    /* Dashboard Layout */
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    @media (min-width: 1024px) {
+      .dashboard-layout {
+        grid-template-columns: 2fr 1fr;
+      }
+    }
+    .widget-panel {
+      background-color: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+    .panel-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--color-border);
+      background-color: #fafbfc;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .panel-header h3 {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--color-text-dark);
+      text-transform: uppercase;
+      font-family: var(--font-mono);
+      letter-spacing: 0.025em;
+    }
+    .panel-content {
+      padding: 1.25rem;
+    }
+
+    /* CSS Heatmap & Progress Bars */
+    .risk-matrix-grid {
+      display: grid;
+      grid-template-columns: 3.5rem repeat(3, 1fr);
+      gap: 0.5rem;
+      font-size: 0.75rem;
+    }
+    .matrix-label {
+      font-family: var(--font-mono);
+      color: var(--color-text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+    .matrix-cell {
+      border-radius: var(--radius-md);
+      padding: 1rem 0.5rem;
+      text-align: center;
+      font-weight: 700;
+      font-size: 1rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: transform 0.2s;
+    }
+    .matrix-cell:hover {
+      transform: scale(1.03);
+    }
+    .cell-low { background-color: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+    .cell-medium { background-color: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+    .cell-high { background-color: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; }
+    .cell-critical { background-color: #fef2f2; color: #b91c1c; border: 1px solid #fee2e2; }
+    .cell-title {
+      font-size: 0.625rem;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      font-weight: 500;
+      opacity: 0.8;
+      margin-top: 0.125rem;
+    }
+
+    /* Program Listing / Grid Workspace */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      background-color: #f1f5f9;
+      border: 1px solid var(--color-border);
+      padding: 0.75rem;
+      border-radius: var(--radius-lg);
+      margin-bottom: 1.5rem;
+      align-items: center;
+    }
+    .input-search {
+      flex: 1;
+      min-width: 200px;
+      background-color: white;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 0.5rem 0.75rem;
+      font-size: 0.825rem;
+    }
+    .select-filter {
+      background-color: white;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 0.5rem 1.75rem 0.5rem 0.75rem;
+      font-size: 0.825rem;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+      background-repeat: no-repeat;
+      background-position: right 0.5rem center;
+      background-size: 1rem;
+      appearance: none;
+    }
+    .programs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.25rem;
+    }
+    .program-card {
+      background-color: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      padding: 1.25rem;
+      transition: all 0.2s;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 1.25rem;
+    }
+    .program-card:hover {
+      border-color: #cbd5e1;
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+    .program-meta-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+    .program-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--color-text-dark);
+      letter-spacing: -0.01em;
+    }
+    .badge-stage {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 0.25rem 0.5rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid;
+    }
+    .stage-planning { background-color: #eff6ff; color: #1e40af; border-color: #bfdbfe; }
+    .stage-design { background-color: #faf5ff; color: #6b21a8; border-color: #e9d5ff; }
+    .stage-processdev { background-color: #fffbeb; color: #92400e; border-color: #fef3c7; }
+    .stage-validation { background-color: #f0fdf4; color: #166534; border-color: #bbf7d0; }
+    .stage-production { background-color: #ecfdf5; color: #065f46; border-color: #a7f3d0; }
+    
+    .progress-track {
+      width: 100%;
+      background-color: #f1f5f9;
+      height: 6px;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+    .progress-fill {
+      background-color: var(--color-accent);
+      height: 100%;
+      border-radius: 10px;
+      transition: width 0.3s ease;
+    }
+    .card-footer-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.725rem;
+      color: var(--color-text-muted);
+      font-family: var(--font-mono);
+      border-t: 1px solid var(--color-border);
+      padding-top: 0.75rem;
+    }
+
+    /* Program Details & Workspace */
+    .workspace-header-details {
+      background-color: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .sub-tabs-container {
+      display: flex;
+      border-bottom: 1px solid var(--color-border);
+      margin-bottom: 1.5rem;
+      gap: 0.5rem;
+    }
+    .sub-tab-btn {
+      padding: 0.75rem 1.25rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    .sub-tab-btn:hover {
+      color: var(--color-text-dark);
+    }
+    .sub-tab-btn.active {
+      color: var(--color-accent);
+      border-bottom-color: var(--color-accent);
+    }
+
+    /* COPILOT BANNER ACCELERATOR */
+    .copilot-card {
+      background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
+      color: #f8fafc;
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid #312e81;
+      position: relative;
+      overflow: hidden;
+    }
+    .copilot-card::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 15rem;
+      height: 15rem;
+      background: radial-gradient(circle, rgba(37,99,235,0.15) 0%, rgba(0,0,0,0) 70%);
+      pointer-events: none;
+    }
+    .copilot-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+    .copilot-badge {
+      background-color: #2563eb;
+      color: white;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      padding: 0.15rem 0.4rem;
+      border-radius: var(--radius-sm);
+    }
+    .copilot-title {
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+    .copilot-desc {
+      font-size: 0.8rem;
+      color: #cbd5e1;
+      max-width: 800px;
+      line-height: 1.5;
+    }
+    .copilot-action-row {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      max-width: 600px;
+    }
+    .copilot-input {
+      flex: 1;
+      background-color: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: var(--radius-md);
+      padding: 0.5rem 0.75rem;
+      color: white;
+      font-size: 0.8rem;
+    }
+    .copilot-input::placeholder {
+      color: #94a3b8;
+    }
+
+    /* Worksheet Tables */
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      background-color: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 1.5rem;
+    }
+    .table-qlm {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.825rem;
+    }
+    .table-qlm th {
+      background-color: #f8fafc;
+      padding: 0.75rem 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      border-bottom: 1px solid var(--color-border);
+      font-weight: 700;
+    }
+    .table-qlm td {
+      padding: 0.875rem 1rem;
+      border-bottom: 1px solid var(--color-border);
+      vertical-align: middle;
+    }
+    .table-qlm tr:last-child td {
+      border-bottom: none;
+    }
+    .table-qlm tr:hover {
+      background-color: #fafbfc;
+    }
+    .rpn-badge {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      padding: 0.2rem 0.4rem;
+      border-radius: var(--radius-sm);
+    }
+    .rpn-critical { background-color: var(--color-danger-bg); color: var(--color-danger); border: 1px solid var(--color-danger-border); }
+    .rpn-high { background-color: var(--color-warning-bg); color: var(--color-warning); border: 1px solid var(--color-warning-border); }
+    .rpn-normal { background-color: var(--color-bg); color: var(--color-text); border: 1px solid var(--color-border); }
+
+    /* FMEA Editor Form Area */
+    .form-box {
+      background-color: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 2rem;
+    }
+    .form-title {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--color-text-dark);
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--color-border);
+      padding-bottom: 0.5rem;
+    }
+    .grid-form {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    @media (min-width: 768px) {
+      .grid-form {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .col-span-3 {
+        grid-column: span 3;
+      }
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .form-group label {
+      font-size: 0.725rem;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      font-weight: 600;
+      color: var(--color-text-muted);
+    }
+    .form-input, .form-select, .form-textarea {
+      background-color: white;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 0.5rem 0.75rem;
+      font-size: 0.8rem;
+      color: var(--color-text-dark);
+      width: 100%;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--color-accent);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+    }
+    .form-textarea {
+      resize: vertical;
+      min-height: 5rem;
+    }
+
+    /* Modal / Popups Style */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      animation: fadeInOverlay 0.2s ease-out;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-box {
+      background-color: var(--color-card);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 650px;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      animation: slideInBox 0.2s ease-out;
+    }
+    @keyframes fadeInOverlay {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes slideInBox {
+      from { transform: translateY(16px); }
+      to { transform: translateY(0); }
+    }
+    .modal-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #f8fafc;
+    }
+    .modal-header h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--color-text-dark);
+    }
+    .modal-body {
+      padding: 1.5rem;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    .modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--color-border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      background-color: #f8fafc;
+    }
+
+    /* Toast Notifications System */
+    .toast-container {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .toast {
+      background-color: var(--color-card);
+      border-radius: var(--radius-md);
+      padding: 0.875rem 1.25rem;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      min-width: 280px;
+      max-width: 400px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      animation: toastSlideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      border-left: 4px solid;
+    }
+    @keyframes toastSlideIn {
+      from { transform: translateY(1rem); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .toast-success { border-left-color: var(--color-success); color: #065f46; background-color: #f0fdf4; }
+    .toast-warning { border-left-color: var(--color-warning); color: #92400e; background-color: #fffbeb; }
+    .toast-danger { border-left-color: var(--color-danger); color: #991b1b; background-color: #fef2f2; }
+
+    /* Footer */
+    .app-footer {
+      border-top: 1px solid var(--color-border);
+      background-color: var(--color-card);
+      padding: 1.5rem;
+      text-align: center;
+      font-size: 0.725rem;
+      color: var(--color-text-muted);
+    }
+    .footer-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      sm-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    @media (min-width: 640px) {
+      .footer-inner {
+        flex-direction: row;
+      }
+    }
+
+    /* Helper styles */
+    .flex-center { display: flex; align-items: center; gap: 0.5rem; }
+    .text-mono { font-family: var(--font-mono); }
+    .font-bold { font-weight: 700; }
+    .text-right { text-align: right; }
+    .text-center { text-align: center; }
+    .cursor-pointer { cursor: pointer; }
+    .mt-4 { margin-top: 1rem; }
+    .text-muted { color: var(--color-text-muted); }
+    
+    /* 5 Whys visual display list */
+    .whys-vertical-chain {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .why-step {
+      display: flex;
+      gap: 1rem;
+      background-color: #f8fafc;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 0.75rem;
+      align-items: flex-start;
+    }
+    .why-step-number {
+      background-color: var(--color-primary-light);
+      color: white;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: bold;
+      width: 1.25rem;
+      height: 1.25rem;
+      border-radius: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+    }
+    .why-step-content {
+      font-size: 0.775rem;
+      color: var(--color-text-dark);
+    }
+    .why-step-content span {
+      display: block;
+      font-size: 0.625rem;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      font-family: var(--font-mono);
+      font-weight: 600;
+      margin-bottom: 0.125rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Sticky Header -->
+    <header class="app-header">
+      <div class="header-inner">
+        <div class="logo-container">
+          <div class="logo-icon">Q</div>
+          <div class="logo-text">
+            <h1>EMPOWER QLM</h1>
+            <p>Quality Lifecycle Platform</p>
+          </div>
+        </div>
+        
+        <nav class="nav-tabs" id="main-nav">
+          <button class="nav-btn active" onclick="switchTab('dashboard')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+            Dashboard
+          </button>
+          <button class="nav-btn" onclick="switchTab('programs')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+            APQP Programs
+          </button>
+          <button class="nav-btn" onclick="switchTab('capa')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            CAPA Defects
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="app-main">
+      
+      <!-- TAB 1: DASHBOARD -->
+      <section id="screen-dashboard" class="screen active">
+        <div class="section-header">
+          <div class="section-title">
+            <h2>Quality Lifecycle Dashboard</h2>
+            <p>Overall compliance overview across functional gates, hazard lists, and corrective actions</p>
+          </div>
+          <div>
+            <span class="badge-stage stage-production flex-center" style="font-size: 0.75rem;">
+              <span style="display:inline-block; width:6px; height:6px; border-radius:100%; background-color:#10b981;"></span>
+              ISO 9001:2015 Compliant
+            </span>
+          </div>
+        </div>
+
+        <!-- KPI Grid -->
+        <div class="grid-dashboard" id="kpi-container">
+          <!-- Rendered Dynamically -->
+        </div>
+
+        <!-- Dashboard Layout -->
+        <div class="dashboard-layout">
+          <!-- Column 1: FMEA Risk Matrices -->
+          <div class="widget-panel">
+            <div class="panel-header">
+              <h3>FMEA Critical Hazard Matrix</h3>
+              <span class="text-mono text-muted" style="font-size: 0.65rem;">Active Risks</span>
+            </div>
+            <div class="panel-content">
+              <div class="risk-matrix-grid" id="dashboard-matrix">
+                <!-- Rendered Dynamically -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Column 2: Recent Activity Alerts -->
+          <div class="widget-panel">
+            <div class="panel-header">
+              <h3>System Quality Alerts</h3>
+              <span class="text-mono text-muted" style="font-size: 0.65rem;">Live Logs</span>
+            </div>
+            <div class="panel-content" id="alerts-container">
+              <!-- Rendered Dynamically -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: APQP PROGRAMS LIST -->
+      <section id="screen-programs" class="screen">
+        <div class="section-header">
+          <div class="section-title">
+            <h2>Advanced Product Quality Planning (APQP)</h2>
+            <p>Manage product realization checkpoints, active design failures worksheets, and part submission warrants</p>
+          </div>
+          <button class="btn-action" onclick="openProgramModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            New Program
+          </button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="filter-bar">
+          <input type="text" id="program-search" class="input-search" placeholder="Search by name, part number, customer..." oninput="filterPrograms()" />
+          <select id="program-filter-stage" class="select-filter" onchange="filterPrograms()">
+            <option value="All">All Stages</option>
+            <option value="Planning">Planning</option>
+            <option value="Design">Design</option>
+            <option value="ProcessDev">ProcessDev</option>
+            <option value="Validation">Validation</option>
+            <option value="Production">Production</option>
+          </select>
+        </div>
+
+        <!-- Programs Grid -->
+        <div class="programs-grid" id="programs-container">
+          <!-- Rendered Dynamically -->
+        </div>
+      </section>
+
+      <!-- TAB 2.5: PROGRAM DETAILS WORKSPACE -->
+      <section id="screen-program-detail" class="screen">
+        <!-- Rendered Dynamically -->
+      </section>
+
+      <!-- TAB 3: CAPA REGISTRY -->
+      <section id="screen-capa" class="screen">
+        <div class="section-header">
+          <div class="section-title">
+            <h2>CAPA Defect Reports & Actions</h2>
+            <p>File corrective safety actions, trace Root Cause Analysis, and manage systemic mitigation procedures</p>
+          </div>
+          <button class="btn-action btn-action-danger" onclick="toggleElement('capa-form-area')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Report Defect Case
+          </button>
+        </div>
+
+        <!-- Create CAPA Area -->
+        <div class="form-box" id="capa-form-area" style="display:none;">
+          <div class="form-title">Report New Defect / Quality Deviation</div>
+          <form id="capa-create-form" onsubmit="handleCapaCreate(event)">
+            <div class="grid-form">
+              <div class="form-group">
+                <label>Deviation Title</label>
+                <input type="text" id="capa-title" class="form-input" placeholder="e.g. Solder voiding on microcontroller pins" required />
+              </div>
+              <div class="form-group">
+                <label>Related APQP Program</label>
+                <select id="capa-project-id" class="form-select">
+                  <option value="">Generic (No Program)</option>
+                  <!-- Populated dynamically -->
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Discovery Source</label>
+                <select id="capa-source" class="form-select">
+                  <option value="Production Inspection">Production Inspection</option>
+                  <option value="Customer Complaint">Customer Complaint</option>
+                  <option value="Internal Audit">Internal Audit</option>
+                  <option value="Supplier Quality">Supplier Quality</option>
+                </select>
+              </div>
+              <div class="form-group col-span-3">
+                <label>Defect Symptom & Inspection Record</label>
+                <textarea id="capa-desc" class="form-textarea" placeholder="Detail the failure mode: amount of parts affected, physical observations, inspection equipment used..." required></textarea>
+              </div>
+              <div class="form-group">
+                <label>Priority Level</label>
+                <select id="capa-severity" class="form-select">
+                  <option value="Low">Low Priority</option>
+                  <option value="Medium" selected>Medium Priority</option>
+                  <option value="High">High Priority</option>
+                  <option value="Critical">Critical (Stop Line)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Investigating Owner</label>
+                <input type="text" id="capa-owner" class="form-input" placeholder="Lead quality engineer name" required />
+              </div>
+              <div class="form-group" style="display:flex; align-items:flex-end;">
+                <button type="submit" class="btn-action" style="width:100%; justify-content:center;">Initiate Investigation</button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- Filter Controls -->
+        <div class="filter-bar">
+          <input type="text" id="capa-search" class="input-search" placeholder="Search defect titles, descriptions, owners..." oninput="filterCapa()" />
+          <select id="capa-filter-status" class="select-filter" onchange="filterCapa()">
+            <option value="All">All Statuses</option>
+            <option value="Draft">Draft</option>
+            <option value="Investigation">Investigation</option>
+            <option value="ActionPlan">Action Plan</option>
+            <option value="Verification">Verification</option>
+            <option value="Closed">Closed</option>
+          </select>
+        </div>
+
+        <!-- CAPA List Container -->
+        <div id="capa-container" style="display:flex; flex-direction:column; gap:1rem;">
+          <!-- Rendered Dynamically -->
+        </div>
+      </section>
+
+    </main>
+
+    <!-- App Footer -->
+    <footer class="app-footer">
+      <div class="footer-inner">
+        <p>&copy; 2026 Empower Quality Lifecycle Management (QLM) Systems. All records secured in client LocalStorage.</p>
+        <p class="text-mono flex-center" style="font-size: 0.65rem;">
+          <span style="display:inline-block; width:6px; height:6px; background-color:#10b981; border-radius:100%;"></span>
+          Database Online
+        </p>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- ADD / EDIT PROGRAM MODAL -->
+  <div class="modal-overlay" id="program-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="program-modal-title">Create APQP Quality Program</h3>
+        <button class="text-muted font-bold" onclick="closeProgramModal()">&times;</button>
+      </div>
+      <form id="program-form" onsubmit="handleProgramSubmit(event)">
+        <input type="hidden" id="edit-program-id" />
+        <div class="modal-body">
+          <div class="grid-form" style="grid-template-columns:1fr; gap:1.25rem;">
+            <div class="form-group">
+              <label>Program / Part Name</label>
+              <input type="text" id="prog-name" class="form-input" placeholder="e.g. NextGen Brake Cylinder Gen II" required />
+            </div>
+            <div class="form-group">
+              <label>Part Number Reference</label>
+              <input type="text" id="prog-part" class="form-input" placeholder="e.g. PN-902-88X" required />
+            </div>
+            <div class="form-group">
+              <label>Target Customer</label>
+              <input type="text" id="prog-cust" class="form-input" placeholder="e.g. Ford Motor Company" required />
+            </div>
+            <div class="form-group">
+              <label>APQP Initial Stage Gate</label>
+              <select id="prog-status" class="form-select">
+                <option value="Planning">Planning (Phase 1)</option>
+                <option value="Design">Product Design (Phase 2)</option>
+                <option value="ProcessDev">Process Development (Phase 3)</option>
+                <option value="Validation">Product & Process Validation (Phase 4)</option>
+                <option value="Production">Production Launch (Phase 5)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Target Launch Date</label>
+              <input type="date" id="prog-launch" class="form-input" required />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-action btn-secondary" onclick="closeProgramModal()">Cancel</button>
+          <button type="submit" class="btn-action">Save Quality Program</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Dynamic Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- VANILLA JAVASCRIPT STATE ENGINE & RENDERING -->
+  <script>
+    // ==========================================
+    // 1. STATE MANAGEMENT & STORAGE
+    // ==========================================
+    
+    // Initial Seed Data for premium, robust demonstration
+    const DEFAULT_PROJECTS = [
+      {
+        id: 'proj-1',
+        name: 'Gen-III Autonomous Braking Module',
+        partNumber: 'ABM-902-G3',
+        customer: 'Apex Autonomous Corp',
+        status: 'Validation',
+        progress: 75,
+        launchDate: '2026-12-01',
+        createdAt: '2026-03-10'
+      },
+      {
+        id: 'proj-2',
+        name: 'Carbon-Core Steering Column Assembly',
+        partNumber: 'SCA-330-CC',
+        customer: 'Stellar Automotive',
+        status: 'Design',
+        progress: 35,
+        launchDate: '2027-02-15',
+        createdAt: '2026-05-01'
+      },
+      {
+        id: 'proj-3',
+        name: 'Direct-Injection Fuel Rail manifold',
+        partNumber: 'FRM-884-DI',
+        customer: 'Global Engine Group',
+        status: 'Production',
+        progress: 95,
+        launchDate: '2026-08-20',
+        createdAt: '2026-01-15'
+      }
+    ];
+
+    const DEFAULT_FMEAS = [
+      {
+        id: 'fmea-1',
+        projectId: 'proj-1',
+        processStep: 'SMD Reflow Solder of Core Processor',
+        potentialFailureMode: 'Insufficient solder fillet (cold joint)',
+        potentialFailureEffects: 'Intermittent signal loss during dynamic high vibration events, resulting in emergency brake lockups.',
+        severity: 9,
+        potentialCauses: 'Solder stencil aperture clogging, conveyor heat profile deviations',
+        occurrence: 3,
+        currentControls: '100% Automated Optical Inspection (AOI) post reflow',
+        detection: 4,
+        rpn: 108,
+        recommendedActions: 'Perform weekly stencil Gage R&R, introduce smart parameter lockouts on oven control',
+        actionResponsibility: 'Marcus Wright (Manufacturing Eng)',
+        actionStatus: 'In Progress'
+      },
+      {
+        id: 'fmea-2',
+        projectId: 'proj-1',
+        processStep: 'Laser Engraving QR Traceability Code',
+        potentialFailureMode: 'Laser power degradation (undecipherable barcode)',
+        potentialFailureEffects: 'Failure in traceability chain, quarantined inventory blocks in final shipping.',
+        severity: 5,
+        potentialCauses: 'Lens residue clouding, dust collection vent blockage',
+        occurrence: 5,
+        currentControls: 'Manual gate scanner inspection at pack-out stage',
+        detection: 6,
+        rpn: 150,
+        recommendedActions: 'Install inline high-resolution machine-vision barcode reader for auto-rejection',
+        actionResponsibility: 'Dr. Sarah Connor (Systems Integration)',
+        actionStatus: 'Completed'
+      },
+      {
+        id: 'fmea-3',
+        projectId: 'proj-2',
+        processStep: 'Carbon Filament Winding of Column Tube',
+        potentialFailureMode: 'Fiber tension loss (interlaminar microvoids)',
+        potentialFailureEffects: 'Catastrophic structural collapse under torque stress exceeding safety limits.',
+        severity: 10,
+        potentialCauses: 'Servo motor tensioner calibration drift, spool spooling defect',
+        occurrence: 2,
+        currentControls: 'Random sample ultrasonic non-destructive testing',
+        detection: 8,
+        rpn: 160,
+        recommendedActions: 'Install continuous laser tension monitoring sensor with instantaneous machine shutdown triggers',
+        actionResponsibility: 'Kyle Reese (Materials Science)',
+        actionStatus: 'Open'
+      }
+    ];
+
+    const PPAP_ELEMENT_CODES = [
+      { code: 'DRE', name: 'Design Records & Drawings' },
+      { code: 'DFMEA', name: 'Design Failure Mode & Effects Analysis (DFMEA)' },
+      { code: 'PFMEA', name: 'Process Failure Mode & Effects Analysis (PFMEA)' },
+      { code: 'DIM', name: 'Dimensional Measurement Results' },
+      { code: 'MAT', name: 'Material & Performance Test Results' },
+      { code: 'MSA', name: 'Measurement System Analysis (MSA) Studies' },
+      { code: 'SPC', name: 'Initial Process Capability Studies (Cpk)' },
+      { code: 'PSW', name: 'Part Submission Warrant (PSW)' }
+    ];
+
+    const DEFAULT_CAPAS = [
+      {
+        id: 'capa-1',
+        title: 'Absence of Solder Fillet on Microcontroller (Pins 14-18)',
+        projectId: 'proj-1',
+        defectDescription: 'During functional circuit testing on batch 903, 12 ABS control units reported random packet dropouts. Microscopic investigation isolated missing solder fillets on microcontroller serial communication pins 14 to 18.',
+        source: 'Production Inspection',
+        status: 'Investigation',
+        severity: 'High',
+        containmentAction: 'Quarantined 340 finished units in warehouse block 3B. Modified final scanner firmware to reject assemblies with any communication drops.',
+        rootCauseAnalysis: {
+          method: '5Whys',
+          whys: [
+            'Solder joint failed to establish connection on pins 14-18.',
+            'Reflow paste volume was inadequate on microcontroller pads.',
+            'Aperture of the stencil print foil was partially clogged by paste buildup.',
+            'Under-stencil clean wiper ran dry due to solvent hose linkage leak.',
+            'Preventive maintenance procedure did not mandate inspection of pressure fit seals on lines.'
+          ]
+        },
+        correctiveAction: 'Replaced wiper hose with high-pressure reinforced coupling. Updated reflow machine software with stencil block warning locks.',
+        preventiveAction: 'Revised general plant cleaning manuals for stencil modules across all 4 production lines.',
+        owner: 'Marcus Wright (Process Engineering)',
+        createdAt: '2026-07-01'
+      }
+    ];
+
+    // Core Local Storage State Initialize
+    let projects = JSON.parse(localStorage.getItem('qlm_projects')) || DEFAULT_PROJECTS;
+    let fmeas = JSON.parse(localStorage.getItem('qlm_fmeas')) || DEFAULT_FMEAS;
+    let capas = JSON.parse(localStorage.getItem('qlm_capas')) || DEFAULT_CAPAS;
+    let ppaps = JSON.parse(localStorage.getItem('qlm_ppaps')) || [];
+
+    // Initialize PPAPs if empty
+    if (ppaps.length === 0) {
+      projects.forEach(p => {
+        PPAP_ELEMENT_CODES.forEach((elem, idx) => {
+          ppaps.push({
+            id: `ppap-${p.id}-${idx}`,
+            projectId: p.id,
+            elementCode: elem.code,
+            elementName: elem.name,
+            status: idx < 3 ? 'Approved' : idx === 3 ? 'Under Review' : 'In Progress',
+            submittedBy: idx < 4 ? 'Marcus Wright' : '',
+            submittedAt: idx < 4 ? p.createdAt : '',
+            comments: idx < 3 ? 'Approved and locked by quality committee' : ''
+          });
+        });
+      });
+      saveState();
+    }
+
+    // State of active views
+    const appState = {
+      activeTab: 'dashboard',
+      activeProgramId: null,
+      fmeaEditingId: null,
+      ppapEditingId: null,
+      subTab: 'fmea'
+    };
+
+    function saveState() {
+      localStorage.setItem('qlm_projects', JSON.stringify(projects));
+      localStorage.setItem('qlm_fmeas', JSON.stringify(fmeas));
+      localStorage.setItem('qlm_capas', JSON.stringify(capas));
+      localStorage.setItem('qlm_ppaps', JSON.stringify(ppaps));
+    }
+
+    // ==========================================
+    // 2. INTERACTIVE SIMULATED AI COPILOT ENGINES
+    // ==========================================
+    
+    // Technical rule-based database of FMEA risks for live, professional brainstorming
+    const AI_BRAINSTORM_DATABASE = {
+      "solder": [
+        {
+          mode: "Solder Bridging / Solder Balling",
+          effects: "Short circuit between high-speed micro-controller pins, causing component latch-up or permanent safety processor burnout.",
+          severity: 9,
+          causes: "Incorrect paste stencil profile thickness, or excessive squeegee pressure during printing",
+          occurrence: 4,
+          controls: "3D Automated Optical Inspection (AOI) post print and post reflow",
+          detection: 3,
+          action: "Optimize solder aperture size ratio, restrict paste viscosity bounds to 120 Pa.s."
+        },
+        {
+          mode: "Insufficient Solder Fillet (Dry Joint)",
+          effects: "High contact resistance, open circuits under thermal cycling, or component shear off during field vibration.",
+          severity: 8,
+          causes: "Oxidized pad plating, low preheat temperature profile in reflow zone",
+          occurrence: 3,
+          controls: "Random sample X-ray (AXI) testing on critical BGA elements",
+          detection: 5,
+          action: "Revise reflow oven profiling using temperature trace cards every shift."
+        }
+      ],
+      "laser": [
+        {
+          mode: "Incomplete Barcode Etch Depth",
+          effects: "Unreadable trace-code by final gate readers, blockages of dispatch arrays, loss of legal part trace validity.",
+          severity: 5,
+          causes: "Laser lens degradation, improper laser frequency parameters selected in system profile",
+          occurrence: 4,
+          controls: "100% automated high resolution vision verify gate post etch",
+          detection: 2,
+          action: "Install preventative laser energy output verification sensors before printing."
+        }
+      ],
+      "molding": [
+        {
+          mode: "Casing Sink Marks or Warpage",
+          effects: "Poor mechanical seal, leading to ingress of dust or water, failing IP67 environmental standards.",
+          severity: 7,
+          causes: "Inadequate holding pressure or insufficient cooling time during injection molding loop",
+          occurrence: 3,
+          controls: "CMM machine coordinate scan of raw housing lots",
+          detection: 4,
+          action: "Redesign core tooling with rib structures to distribute material cooling uniformly."
+        }
+      ],
+      "default": [
+        {
+          mode: "Out-of-tolerance Mechanical Alignment",
+          effects: "Binding of components, excessive physical friction, leading to premature field fatigue failure.",
+          severity: 7,
+          causes: "Wear in production fixture guides, loose clamping torque",
+          occurrence: 4,
+          controls: "Caliper and slide measurement checks",
+          detection: 5,
+          action: "Incorporate regular fixture preventative verification schedules."
+        }
+      ]
+    };
+
+    function simulateFmeaAiSuggest(stepName) {
+      const stepLower = stepName.toLowerCase();
+      let matched = AI_BRAINSTORM_DATABASE.default;
+      
+      if (stepLower.includes('solder') || stepLower.includes('pcb') || stepLower.includes('electronic')) {
+        matched = AI_BRAINSTORM_DATABASE.solder;
+      } else if (stepLower.includes('laser') || stepLower.includes('etch') || stepLower.includes('barcode')) {
+        matched = AI_BRAINSTORM_DATABASE.laser;
+      } else if (stepLower.includes('mold') || stepLower.includes('plastic') || stepLower.includes('casing')) {
+        matched = AI_BRAINSTORM_DATABASE.molding;
+      }
+
+      return matched.map(item => ({
+        id: `fmea-ai-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+        processStep: stepName,
+        potentialFailureMode: item.mode,
+        potentialFailureEffects: item.effects,
+        severity: item.severity,
+        potentialCauses: item.causes,
+        occurrence: item.occurrence,
+        currentControls: item.controls,
+        detection: item.detection,
+        rpn: item.severity * item.occurrence * item.detection,
+        recommendedActions: item.action,
+        actionResponsibility: "APQP Core Quality Team",
+        actionStatus: "Open"
+      }));
+    }
+
+    const AI_CAPA_RCA_DATABASE = {
+      "solder": {
+        containment: "Isolate affected batch, implement 100% manual inspection with digital microscope at line exit.",
+        whys: [
+          "The PCB assembly shows inadequate solder joint thickness on micro-controller pins.",
+          "Insufficient solder paste volume was deposited during printing.",
+          "Stencil print apertures were clogged due to paste buildup.",
+          "Automatic stencil wiper ran dry during high speed shift loops.",
+          "Preventive maintenance task list did not enforce visual seal inspection of the solvent hose."
+        ],
+        corrective: "Replace solvent hose line coupling with robust steel braided clamps. Configure PLC warning locks on print machine.",
+        preventive: "Update global plant preventative maintenance manuals for print stations across all 4 production lines."
+      },
+      "default": {
+        containment: "Quarantine all parts produced within active shift. Establish visual verification station at final pack out.",
+        whys: [
+          "Part dimensions exceeded the maximum drawing tolerance parameters.",
+          "Fixture guides shifted position during physical machine cycle run.",
+          "Locking bolts loosened under cyclic vibration stress.",
+          "Operator was not trained on torque requirements of fixture tooling setup.",
+          "Initial machine onboarding did not incorporate a formal fixture verification audit."
+        ],
+        corrective: "Install thread-locking adhesive on assembly guide bolts. Run full gauge calibration audit of assembly fixtures.",
+        preventive: "Create standard operator training modules for fixture setup, update product control plan metrics."
+      }
+    };
+
+    function simulateCapaAiInvestigate(defectTitle, defectDesc) {
+      const query = (defectTitle + " " + defectDesc).toLowerCase();
+      let matched = AI_CAPA_RCA_DATABASE.default;
+      
+      if (query.includes('solder') || query.includes('pcb') || query.includes('circuit')) {
+        matched = AI_CAPA_RCA_DATABASE.solder;
+      }
+      return matched;
+    }
+
+
+    // ==========================================
+    // 3. UI RENDERING CORE
+    // ==========================================
+    
+    // Tab controller
+    function switchTab(tabId) {
+      appState.activeTab = tabId;
+      appState.activeProgramId = null; // reset details
+      
+      // Update nav menu active states
+      const navBtns = document.querySelectorAll('#main-nav .nav-btn');
+      navBtns.forEach(btn => btn.classList.remove('active'));
+      
+      const currentBtnIdx = tabId === 'dashboard' ? 0 : tabId === 'programs' ? 1 : 2;
+      navBtns[currentBtnIdx].classList.add('active');
+
+      // Update screen displays
+      const screens = document.querySelectorAll('.screen');
+      screens.forEach(s => s.classList.remove('active'));
+
+      const activeScreen = document.getElementById(`screen-${tabId}`);
+      if (activeScreen) {
+        activeScreen.classList.add('active');
+      }
+
+      // Re-trigger specific renders
+      if (tabId === 'dashboard') {
+        renderDashboard();
+      } else if (tabId === 'programs') {
+        renderPrograms();
+      } else if (tabId === 'capa') {
+        renderCapa();
+      }
+    }
+
+    // TAB 1: Dashboard Builder
+    function renderDashboard() {
+      const activeProgsCount = projects.filter(p => p.status !== 'Completed').length;
+      const completedProgsCount = projects.filter(p => p.status === 'Completed').length;
+      const closedCapasCount = capas.filter(c => c.status === 'Closed').length;
+      
+      // Calculate overall Quality score
+      let approvedPpapCount = ppaps.filter(p => p.status === 'Approved').length;
+      let totalPpapCount = ppaps.length || 1;
+      let scorePercentage = Math.round((approvedPpapCount / totalPpapCount) * 100);
+
+      // 1. KPI Panel
+      const kpis = [
+        { title: "Active Programs", val: activeProgsCount, icon: "📋", theme: "blue" },
+        { title: "Completed Gates", val: completedProgsCount, icon: "✅", theme: "emerald" },
+        { title: "Resolved CAPAs", val: closedCapasCount, icon: "🛡️", theme: "amber" },
+        { title: "Overall Quality Score", val: `${scorePercentage}%`, icon: "⚡", theme: "rose" }
+      ];
+
+      const kpiContainer = document.getElementById('kpi-container');
+      kpiContainer.innerHTML = kpis.map(k => `
+        <div class="card-kpi">
+          <div class="kpi-icon kpi-icon-${k.theme}">${k.icon}</div>
+          <div class="kpi-data">
+            <h4>${k.title}</h4>
+            <p>${k.val}</p>
+          </div>
+        </div>
+      `).join('');
+
+      // 2. Risk Matrix
+      // Row is Severity (10-8: High, 7-5: Medium, 4-1: Low)
+      // Col is Occurrence (10-8: High, 7-5: Medium, 4-1: Low)
+      let matrixCounts = {
+        'high-high': 0, 'high-med': 0, 'high-low': 0,
+        'med-high': 0, 'med-med': 0, 'med-low': 0,
+        'low-high': 0, 'low-med': 0, 'low-low': 0
+      };
+
+      fmeas.forEach(f => {
+        let sevCat = f.severity >= 8 ? 'high' : f.severity >= 5 ? 'med' : 'low';
+        let occCat = f.occurrence >= 8 ? 'high' : f.occurrence >= 5 ? 'med' : 'low';
+        matrixCounts[`${sevCat}-${occCat}`]++;
+      });
+
+      const matrixGrid = document.getElementById('dashboard-matrix');
+      matrixGrid.innerHTML = `
+        <div class="matrix-label">Severity</div>
+        <div class="matrix-label">Low Occ</div>
+        <div class="matrix-label">Med Occ</div>
+        <div class="matrix-label">High Occ</div>
+        
+        <div class="matrix-label">High</div>
+        <div class="matrix-cell cell-high">${matrixCounts['high-low']}<span class="cell-title">High Risk</span></div>
+        <div class="matrix-cell cell-critical">${matrixCounts['high-med']}<span class="cell-title">Critical</span></div>
+        <div class="matrix-cell cell-critical">${matrixCounts['high-high']}<span class="cell-title">Critical</span></div>
+        
+        <div class="matrix-label">Med</div>
+        <div class="matrix-cell cell-medium">${matrixCounts['med-low']}<span class="cell-title">Medium</span></div>
+        <div class="matrix-cell cell-high">${matrixCounts['med-med']}<span class="cell-title">High Risk</span></div>
+        <div class="matrix-cell cell-critical">${matrixCounts['med-high']}<span class="cell-title">Critical</span></div>
+        
+        <div class="matrix-label">Low</div>
+        <div class="matrix-cell cell-low">${matrixCounts['low-low']}<span class="cell-title">Low Risk</span></div>
+        <div class="matrix-cell cell-medium">${matrixCounts['low-med']}<span class="cell-title">Medium</span></div>
+        <div class="matrix-cell cell-high">${matrixCounts['low-high']}<span class="cell-title">High Risk</span></div>
+      `;
+
+      // 3. System Alerts Log
+      const alertsContainer = document.getElementById('alerts-container');
+      const criticalFmeas = fmeas.filter(f => f.rpn >= 150);
+      const openCapas = capas.filter(c => c.status !== 'Closed');
+
+      let alertsHtml = '';
+      if (criticalFmeas.length === 0 && openCapas.length === 0) {
+        alertsHtml = '<div class="text-center text-muted" style="padding: 2rem 0;">No active high priority alerts in system.</div>';
+      } else {
+        criticalFmeas.forEach(f => {
+          alertsHtml += `
+            <div style="border-left: 3px solid var(--color-danger); padding: 0.5rem 0.75rem; margin-bottom: 0.75rem; background-color:#fff5f5; border-radius: var(--radius-sm);">
+              <div style="display:flex; justify-content:space-between; font-size: 0.7rem; font-family:var(--font-mono); font-weight:600; color:var(--color-danger);">
+                <span>RPN ACCELERATED LIMIT</span>
+                <span>RPN ${f.rpn}</span>
+              </div>
+              <p style="font-size: 0.8rem; font-weight: 700; color:var(--color-text-dark); margin: 0.15rem 0;">${f.potentialFailureMode}</p>
+              <span style="font-size: 0.7rem; color:var(--color-text-muted);">Process: ${f.processStep}</span>
+            </div>
+          `;
+        });
+        openCapas.forEach(c => {
+          alertsHtml += `
+            <div style="border-left: 3px solid var(--color-warning); padding: 0.5rem 0.75rem; margin-bottom: 0.75rem; background-color:#fffbeb; border-radius: var(--radius-sm);">
+              <div style="display:flex; justify-content:space-between; font-size: 0.7rem; font-family:var(--font-mono); font-weight:600; color:#b45309;">
+                <span>ACTIVE CAPA LAUNCH</span>
+                <span>SEV: ${c.severity}</span>
+              </div>
+              <p style="font-size: 0.8rem; font-weight: 700; color:var(--color-text-dark); margin: 0.15rem 0;">${c.title}</p>
+              <span style="font-size: 0.7rem; color:var(--color-text-muted);">Owner: ${c.owner} | Discovered: ${c.source}</span>
+            </div>
+          `;
+        });
+      }
+      alertsContainer.innerHTML = alertsHtml;
+    }
+
+    // TAB 2: Program List
+    function renderPrograms(filterList = null) {
+      const listToRender = filterList || projects;
+      const programsContainer = document.getElementById('programs-container');
+
+      if (listToRender.length === 0) {
+        programsContainer.innerHTML = `
+          <div class="col-span-3 text-center" style="grid-column: 1 / -1; padding: 4rem 1rem; border: 2px dashed var(--color-border); border-radius: var(--radius-lg);">
+            <p class="font-bold text-muted">No APQP Programs Found</p>
+            <p style="font-size:0.8rem; color:var(--color-text-muted); margin-top:0.25rem;">Try adjusting filters or click "New Program" to get started.</p>
+          </div>
+        `;
+        return;
+      }
+
+      programsContainer.innerHTML = listToRender.map(p => {
+        const stageClass = `stage-${p.status.toLowerCase()}`;
+        return `
+          <div class="program-card" onclick="openProgramDetails('${p.id}')">
+            <div>
+              <div class="program-meta-top">
+                <span class="badge-stage ${stageClass}">${p.status}</span>
+                <span style="font-size: 0.7rem; color:var(--color-text-muted); font-family:var(--font-mono);">${p.createdAt}</span>
+              </div>
+              <h3 class="program-title" style="margin-top: 0.5rem;">${p.name}</h3>
+              <p style="font-size: 0.775rem; color:var(--color-text-muted); margin-top: 0.25rem;">Customer: ${p.customer}</p>
+            </div>
+            
+            <div>
+              <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-family:var(--font-mono); font-weight:600;">
+                <span>Compliance Progress</span>
+                <span>${p.progress}%</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" style="width: ${p.progress}%"></div>
+              </div>
+              <div class="card-footer-info">
+                <span>Part: ${p.partNumber}</span>
+                <span>Launch: ${p.launchDate}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filterPrograms() {
+      const searchVal = document.getElementById('program-search').value.toLowerCase();
+      const stageVal = document.getElementById('program-filter-stage').value;
+
+      const filtered = projects.filter(p => {
+        const matchesSearch = p.name.toLowerCase().includes(searchVal) || 
+                              p.partNumber.toLowerCase().includes(searchVal) || 
+                              p.customer.toLowerCase().includes(searchVal);
+        const matchesStage = stageVal === 'All' || p.status === stageVal;
+        return matchesSearch && matchesStage;
+      });
+
+      renderPrograms(filtered);
+    }
+
+    // TAB 2.5: Program Details (Deep dive worksheet)
+    function openProgramDetails(projId) {
+      appState.activeProgramId = projId;
+      appState.subTab = 'fmea'; // reset to default tab
+      
+      // Hide standard screen lists, show custom details view
+      document.getElementById('screen-programs').classList.remove('active');
+      const detailsScreen = document.getElementById('screen-program-detail');
+      detailsScreen.classList.add('active');
+
+      renderProgramDetailsWorkspace();
+    }
+
+    function closeProgramDetails() {
+      appState.activeProgramId = null;
+      document.getElementById('screen-program-detail').classList.remove('active');
+      document.getElementById('screen-programs').classList.add('active');
+      renderPrograms();
+    }
+
+    function renderProgramDetailsWorkspace() {
+      const p = projects.find(item => item.id === appState.activeProgramId);
+      const container = document.getElementById('screen-program-detail');
+      if (!p) return;
+
+      const stageClass = `stage-${p.status.toLowerCase()}`;
+      const fmeaList = fmeas.filter(f => f.projectId === p.id);
+      const ppapList = ppaps.filter(pp => pp.projectId === p.id);
+
+      let subTabContentHtml = '';
+
+      if (appState.subTab === 'fmea') {
+        // FMEA Workspace HTML
+        subTabContentHtml = `
+          <!-- FMEA AI COPILOT -->
+          <div class="copilot-card">
+            <div class="copilot-header">
+              <span class="copilot-badge">Copilot</span>
+              <h4 class="copilot-title">AI FMEA Risk Brainstormer</h4>
+            </div>
+            <p class="copilot-desc">
+              Specify the manufacturing process step or design operation below. The AI Copilot algorithm will instantly predict technical failure modes, standard AIAG severity rankings, mechanical causes, and robust preventative lock-out recommendations.
+            </p>
+            <div class="copilot-action-row">
+              <input type="text" id="fmea-copilot-input" class="copilot-input" placeholder="e.g. Ultrasonic Welding of Housing, SMD Soldering, molding" />
+              <button class="btn-action" onclick="runFmeaCopilot()"><span id="copilot-btn-text">Generate with AI</span></button>
+            </div>
+          </div>
+
+          <!-- FMEA List Table -->
+          <div class="table-responsive">
+            <table class="table-qlm">
+              <thead>
+                <tr>
+                  <th>Process Step</th>
+                  <th>Potential Failure Mode</th>
+                  <th>Downstream Effects</th>
+                  <th class="text-center">S</th>
+                  <th>Potential Causes</th>
+                  <th class="text-center">O</th>
+                  <th>Preventative Controls</th>
+                  <th class="text-center">D</th>
+                  <th class="text-center">RPN</th>
+                  <th>Corrective Action</th>
+                  <th>Status & Owner</th>
+                  <th class="text-center">Modify</th>
+                </tr>
+              </thead>
+              <tbody id="fmea-table-body">
+                ${fmeaList.length === 0 ? `
+                  <tr>
+                    <td colspan="12" class="text-center text-muted" style="padding:2.5rem 1rem;">
+                      No analysis lines logged yet. Use the AI Brainstormer above or complete the worksheet editor below.
+                    </td>
+                  </tr>
+                ` : fmeaList.sort((a,b)=>b.rpn-a.rpn).map(f => {
+                  const rpnClass = f.rpn >= 150 ? 'rpn-critical' : f.rpn >= 80 ? 'rpn-high' : 'rpn-normal';
+                  return `
+                    <tr>
+                      <td style="font-weight:600; color:var(--color-text-dark);">${f.processStep}</td>
+                      <td>${f.potentialFailureMode}</td>
+                      <td style="max-width:200px; font-size:0.775rem;" class="text-muted">${f.potentialFailureEffects}</td>
+                      <td class="text-center text-mono font-bold">${f.severity}</td>
+                      <td style="font-size:0.775rem;">${f.potentialCauses}</td>
+                      <td class="text-center text-mono">${f.occurrence}</td>
+                      <td style="font-size:0.775rem;">${f.currentControls}</td>
+                      <td class="text-center text-mono">${f.detection}</td>
+                      <td class="text-center"><span class="rpn-badge ${rpnClass}">${f.rpn}</span></td>
+                      <td style="font-size:0.775rem;">${f.recommendedActions || 'N/A'}</td>
+                      <td>
+                        <span style="font-size:0.7rem; font-weight:700; display:block;">${f.actionResponsibility || 'Unassigned'}</span>
+                        <span class="badge-stage" style="font-size:0.55rem; padding: 0.1rem 0.3rem; border:none; ${
+                          f.actionStatus === 'Completed' ? 'background-color:#d1fae5; color:#065f46;' :
+                          f.actionStatus === 'In Progress' ? 'background-color:#dbeafe; color:#1e40af;' :
+                          'background-color:#f1f5f9; color:#475569;'
+                        }">${f.actionStatus}</span>
+                      </td>
+                      <td class="text-center">
+                        <div style="display:flex; gap:0.25rem; justify-content:center;">
+                          <button style="color:var(--color-accent);" onclick="editFmeaItem('${f.id}')">✏️</button>
+                          <button style="color:var(--color-danger);" onclick="deleteFmeaItem('${f.id}')">🗑️</button>
+                        </div>
+                      </td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- FMEA Entry Editor -->
+          <div class="form-box">
+            <div class="form-title" id="fmea-form-title">Analyze New FMEA Hazard Row</div>
+            <form id="fmea-row-form" onsubmit="handleFmeaSubmit(event)">
+              <div class="grid-form">
+                <div class="form-group">
+                  <label>Process Step / Design Function</label>
+                  <input type="text" id="fmea-step" class="form-input" placeholder="e.g. Torque seal of structural frame casing" required />
+                </div>
+                <div class="form-group">
+                  <label>Potential Failure Mode</label>
+                  <input type="text" id="fmea-mode" class="form-input" placeholder="e.g. Stripping of casing bolt threads" required />
+                </div>
+                <div class="form-group">
+                  <label>Downstream / Safety Effects</label>
+                  <input type="text" id="fmea-effects" class="form-input" placeholder="e.g. Casing falls off line, internal PCB component exposed" required />
+                </div>
+                <div class="form-group">
+                  <label>Severity Score (S)</label>
+                  <select id="fmea-sev" class="form-select">
+                    <option value="10">10 - Safety Critical (No warning)</option>
+                    <option value="9">9 - Safety Critical (With warning)</option>
+                    <option value="8">8 - Major Loss (Disabled performance)</option>
+                    <option value="7">7 - Serious Degradation (Major inconvenience)</option>
+                    <option value="6">6 - Medium Loss (Primary active functions limited)</option>
+                    <option value="5">5 - Moderate Defect (Conveniences disabled)</option>
+                    <option value="4">4 - Minor Loss (Slight aesthetic deviation)</option>
+                    <option value="3">3 - Slight Annoyance</option>
+                    <option value="2">2 - Very Minor (Barely noticeable)</option>
+                    <option value="1">1 - Unnoticeable</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Potential Failure Causes</label>
+                  <input type="text" id="fmea-causes" class="form-input" placeholder="e.g. Excess pneumatic tool torque limit" required />
+                </div>
+                <div class="form-group">
+                  <label>Occurrence (O)</label>
+                  <select id="fmea-occ" class="form-select">
+                    <option value="10">10 - Unavoidable (Frequent failures)</option>
+                    <option value="8">8 - High Occurrence (Frequent repeats)</option>
+                    <option value="5">5 - Moderate Occurrence (Seen occasionally)</option>
+                    <option value="3" selected>3 - Low Occurrence (Extremely rare)</option>
+                    <option value="1">1 - Improbable (Mechanically impossible)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Current Detection Controls</label>
+                  <input type="text" id="fmea-controls" class="form-input" placeholder="e.g. Manual inspection checksheet post torque" required />
+                </div>
+                <div class="form-group">
+                  <label>Detection (D)</label>
+                  <select id="fmea-det" class="form-select">
+                    <option value="10">10 - Undetectable (No check exists)</option>
+                    <option value="7">7 - Low Detection (Manual checksheet visual)</option>
+                    <option value="5" selected>5 - Moderate Detection (Standard automated scan)</option>
+                    <option value="3">3 - High Detection (Auto-lock sensors on torque tools)</option>
+                    <option value="1">1 - Absolute Certainty (Design prevention / Poka-Yoke)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Corrective / Mitigation Action</label>
+                  <input type="text" id="fmea-action" class="form-input" placeholder="e.g. Calibrate smart-driver limits post batch" required />
+                </div>
+                <div class="form-group">
+                  <label>Assigned Responsible Owner</label>
+                  <input type="text" id="fmea-owner" class="form-input" placeholder="e.g. Marcus Wright" required />
+                </div>
+                <div class="form-group">
+                  <label>Action Status</label>
+                  <select id="fmea-status" class="form-select">
+                    <option value="Open">Open</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                  </select>
+                </div>
+                <div class="form-group" style="display:flex; justify-content:flex-end; align-items:flex-end;">
+                  <button type="submit" class="btn-action" id="fmea-submit-btn">Save Worksheet Row</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        `;
+      } else if (appState.subTab === 'ppap') {
+        // PPAP Elements Checklist HTML
+        subTabContentHtml = `
+          <div class="table-responsive">
+            <table class="table-qlm">
+              <thead>
+                <tr>
+                  <th style="width:10%">Element</th>
+                  <th style="width:30%">PPAP Element Description</th>
+                  <th style="width:15%">Verification Status</th>
+                  <th style="width:15%">Verified By</th>
+                  <th style="width:15%">Timestamp</th>
+                  <th style="width:15%">Reviewer Feedback</th>
+                  <th class="text-center" style="width:10%">Update</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${ppapList.map(pp => {
+                  const isEditing = appState.ppapEditingId === pp.id;
+                  return `
+                    <tr>
+                      <td class="text-mono font-bold" style="color:var(--color-accent);">${pp.elementCode}</td>
+                      <td style="font-weight:600; color:var(--color-text-dark);">${pp.elementName}</td>
+                      <td>
+                        ${isEditing ? `
+                          <select id="ppap-status-${pp.id}" class="form-select" style="padding:0.25rem;">
+                            <option value="Not Started" ${pp.status === 'Not Started' ? 'selected' : ''}>Not Started</option>
+                            <option value="In Progress" ${pp.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                            <option value="Under Review" ${pp.status === 'Under Review' ? 'selected' : ''}>Under Review</option>
+                            <option value="Approved" ${pp.status === 'Approved' ? 'selected' : ''}>Approved</option>
+                            <option value="Rejected" ${pp.status === 'Rejected' ? 'selected' : ''}>Rejected</option>
+                          </select>
+                        ` : `
+                          <span class="badge-stage" style="${
+                            pp.status === 'Approved' ? 'background-color:#d1fae5; color:#065f46; border-color:#a7f3d0;' :
+                            pp.status === 'Rejected' ? 'background-color:#fee2e2; color:#991b1b; border-color:#fca5a5;' :
+                            pp.status === 'Under Review' ? 'background-color:#fef3c7; color:#92400e; border-color:#fde68a;' :
+                            'background-color:#f1f5f9; color:#475569; border-color:#cbd5e1;'
+                          }">${pp.status}</span>
+                        `}
+                      </td>
+                      <td>
+                        ${isEditing ? `
+                          <input type="text" id="ppap-by-${pp.id}" class="form-input" value="${pp.submittedBy || ''}" placeholder="Engineer name" style="padding:0.25rem;" />
+                        ` : (pp.submittedBy || '<span class="text-muted">—</span>')}
+                      </td>
+                      <td class="text-mono" style="font-size:0.75rem;">
+                        ${pp.submittedAt || '<span class="text-muted">—</span>'}
+                      </td>
+                      <td style="font-size:0.775rem;">
+                        ${isEditing ? `
+                          <textarea id="ppap-comment-${pp.id}" class="form-textarea" style="padding:0.25rem; min-height:2.5rem;">${pp.comments || ''}</textarea>
+                        ` : (pp.comments || '<span class="text-muted italic">No logs</span>')}
+                      </td>
+                      <td class="text-center">
+                        ${isEditing ? `
+                          <div style="display:flex; gap:0.25rem; justify-content:center;">
+                            <button style="font-size:0.9rem;" onclick="savePpapRow('${pp.id}')">💾</button>
+                            <button style="font-size:0.9rem;" onclick="cancelPpapEdit()">❌</button>
+                          </div>
+                        ` : `
+                          <button style="color:var(--color-accent); font-size:0.75rem; font-weight:700; text-transform:uppercase; font-family:var(--font-mono);" onclick="editPpapRow('${pp.id}')">Edit Gate</button>
+                        `}
+                      </td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      container.innerHTML = `
+        <!-- Header Info panel -->
+        <div class="workspace-header-details">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
+            <div>
+              <button class="nav-btn" onclick="closeProgramDetails()" style="margin-left:-0.5rem; margin-bottom:0.5rem; text-transform:none; font-family:var(--font-sans); padding: 0.25rem 0.5rem; display:inline-flex; align-items:center; gap:0.25rem;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                Back to Programs
+              </button>
+              <h2 style="font-size:1.6rem; font-weight:800; color:var(--color-text-dark); letter-spacing:-0.025em;">${p.name}</h2>
+              <p style="font-size:0.85rem; color:var(--color-text-muted); font-family:var(--font-mono); margin-top:0.125rem;">
+                Part Reference: ${p.partNumber} | Customer Segment: ${p.customer}
+              </p>
+            </div>
+            
+            <div style="display:flex; align-items:center; gap:1.25rem;">
+              <div style="display:flex; flex-direction:column; gap:0.15rem;">
+                <span style="font-size:0.65rem; font-family:var(--font-mono); font-weight:700; text-transform:uppercase; color:var(--color-text-muted);">APQP Program Phase</span>
+                <select id="detail-project-status" class="form-select" style="padding: 0.35rem 1.75rem 0.35rem 0.5rem; font-size:0.75rem; font-weight:700; background-color:#f1f5f9;" onchange="updateProjectStageGate()">
+                  <option value="Planning" ${p.status === 'Planning' ? 'selected' : ''}>Planning (Gate 1)</option>
+                  <option value="Design" ${p.status === 'Design' ? 'selected' : ''}>Product Design (Gate 2)</option>
+                  <option value="ProcessDev" ${p.status === 'ProcessDev' ? 'selected' : ''}>Process Design (Gate 3)</option>
+                  <option value="Validation" ${p.status === 'Validation' ? 'selected' : ''}>Validation (Gate 4)</option>
+                  <option value="Production" ${p.status === 'Production' ? 'selected' : ''}>Production Launch (Gate 5)</option>
+                </select>
+              </div>
+              <div class="text-right">
+                <span style="font-size:0.65rem; font-family:var(--font-mono); font-weight:700; text-transform:uppercase; color:var(--color-text-muted);">FMEA Completeness</span>
+                <p style="font-size:1.5rem; font-weight:800; color:var(--color-text-dark); letter-spacing:-0.025em; margin-top:-0.15rem;">${p.progress}%</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub Tabs Selectors -->
+        <div class="sub-tabs-container">
+          <button class="sub-tab-btn ${appState.subTab === 'fmea' ? 'active' : ''}" onclick="switchSubTab('fmea')">FMEA worksheets</button>
+          <button class="sub-tab-btn ${appState.subTab === 'ppap' ? 'active' : ''}" onclick="switchSubTab('ppap')">PPAP Stage Checklist</button>
+        </div>
+
+        <!-- Render active sub-tab content -->
+        ${subTabContentHtml}
+      `;
+    }
+
+    function switchSubTab(subTab) {
+      appState.subTab = subTab;
+      appState.fmeaEditingId = null;
+      renderProgramDetailsWorkspace();
+    }
+
+    // TAB 3: CAPA actions view
+    function renderCapa(filterList = null) {
+      const listToRender = filterList || capas;
+      const capaContainer = document.getElementById('capa-container');
+
+      if (listToRender.length === 0) {
+        capaContainer.innerHTML = `
+          <div class="text-center" style="padding: 4rem 1rem; border: 2px dashed var(--color-border); border-radius: var(--radius-lg); background-color: white;">
+            <p class="font-bold text-muted">No CAPA Corrective Action Logs Found</p>
+            <p style="font-size:0.8rem; color:var(--color-text-muted); margin-top:0.25rem;">Adjust filters or click "Report Defect Case" to launch a new investigative report.</p>
+          </div>
+        `;
+        return;
+      }
+
+      capaContainer.innerHTML = listToRender.map(c => {
+        const p = projects.find(item => item.id === c.projectId);
+        const isOpen = c.status !== 'Closed';
+
+        return `
+          <div class="widget-panel" style="border-left: 4px solid ${c.severity === 'Critical' ? 'var(--color-danger)' : c.severity === 'High' ? 'var(--color-warning)' : 'var(--color-accent)'};">
+            <div class="panel-header" style="cursor:pointer;" onclick="toggleElement('capa-deep-workspace-${c.id}')">
+              <div style="display:flex; flex-direction:column; gap:0.25rem;">
+                <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+                  <span class="badge-stage" style="border-color:#fca5a5; background-color:#fee2e2; color:#991b1b;">${c.severity} Severity</span>
+                  <span style="font-size:0.7rem; font-family:var(--font-mono); color:var(--color-text-muted);">SOURCE: ${c.source}</span>
+                  ${p ? `<span class="badge-stage stage-planning" style="font-size:0.6rem;">PROGRAM: ${p.name}</span>` : ''}
+                </div>
+                <h4 style="font-size:1.05rem; font-weight:700; color:var(--color-text-dark); letter-spacing:-0.0125em; margin-top:0.25rem;">${c.title}</h4>
+              </div>
+              
+              <div style="display:flex; align-items:center; gap:0.75rem;">
+                <span class="badge-stage" style="background-color:#f1f5f9; color:var(--color-text-dark); border-color:#cbd5e1;">${c.status}</span>
+                <span style="font-size:1.1rem; color:var(--color-text-muted);">▼</span>
+              </div>
+            </div>
+
+            <!-- Deep Investigation Workspace (Toggled on click) -->
+            <div class="panel-content" id="capa-deep-workspace-${c.id}" style="display:none; background-color:#fafbfc; border-top:1px solid var(--color-border);">
+              <div style="display:grid; grid-template-columns: 1fr; gap:1.5rem; margin-bottom:1.5rem;">
+                <!-- Section Left: Symptom details -->
+                <div style="background-color:white; border:1px solid var(--color-border); border-radius:var(--radius-md); padding:1rem;">
+                  <span style="font-size:0.625rem; font-family:var(--font-mono); text-transform:uppercase; color:var(--color-text-muted); font-weight:600;">Symptom Description</span>
+                  <p style="font-size:0.8rem; margin-top:0.25rem; color:var(--color-text-dark); white-space:pre-wrap;">${c.defectDescription}</p>
+                </div>
+
+                <!-- COPILOT ASSIST INVESTIGATOR -->
+                <div class="copilot-card" style="margin-bottom:0; background:linear-gradient(135deg, #111827 0%, #1f2937 100%); border-color:#4b5563;">
+                  <div class="copilot-header">
+                    <span class="copilot-badge">AI COPILOT</span>
+                    <h4 class="copilot-title">Gemini Root Cause Analyst (RCA)</h4>
+                  </div>
+                  <p class="copilot-desc" style="font-size:0.775rem;">
+                    Launch Gemini Quality Expert to run structural 5-Whys on this symptom. The Copilot automatically proposes containment shields and identifies systemic preventive procedures based on ISO 9001 guidelines.
+                  </p>
+                  <button class="btn-action" style="margin-top:0.75rem; font-size:0.75rem;" onclick="runCapaCopilot('${c.id}')">Analyze Root Causes with AI</button>
+                </div>
+              </div>
+
+              <!-- Root cause layout -->
+              <div style="display:grid; grid-template-columns:1fr; gap:1.25rem;">
+                <!-- RCA whys -->
+                <div class="form-box" style="margin-bottom:0; padding:1.25rem;">
+                  <div class="form-title" style="font-size:0.85rem; font-family:var(--font-mono); letter-spacing:0.025em; text-transform:uppercase;">8D-Compliant 5 Whys Chain</div>
+                  <div class="whys-vertical-chain" id="whys-chain-${c.id}">
+                    ${c.rootCauseAnalysis.whys.map((w, idx) => `
+                      <div class="why-step">
+                        <div class="why-step-number">${idx+1}</div>
+                        <div class="why-step-content">
+                          <span>${idx === 0 ? 'Direct failure symptom' : `Why level ${idx+1}`}</span>
+                          <input type="text" id="capa-why-${c.id}-${idx}" class="form-input" style="padding:0.25rem; font-size:0.775rem; width:100%; border:none; background-color:transparent; font-weight:500;" value="${w}" placeholder="Identify why..." />
+                        </div>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+
+                <!-- Actions input -->
+                <div class="form-box" style="margin-bottom:0; padding:1.25rem;">
+                  <div class="form-title" style="font-size:0.85rem; font-family:var(--font-mono); letter-spacing:0.025em; text-transform:uppercase;">Mitigation & Corrective Actions</div>
+                  <div class="grid-form" style="grid-template-columns: 1fr; gap:0.75rem;">
+                    <div class="form-group" style="grid-column: span 3;">
+                      <label>Immediate Containment Action (Shutoff / quarantine / isolation)</label>
+                      <textarea id="capa-containment-${c.id}" class="form-textarea" style="min-height:3.5rem;">${c.containmentAction || ''}</textarea>
+                    </div>
+                    <div class="form-group" style="grid-column: span 3;">
+                      <label>Permanent Corrective Action (Fix process parameters / mold tools)</label>
+                      <textarea id="capa-corrective-${c.id}" class="form-textarea" style="min-height:3.5rem;">${c.correctiveAction || ''}</textarea>
+                    </div>
+                    <div class="form-group" style="grid-column: span 3;">
+                      <label>Systemic Preventive Action (Audit sheets / employee training revisions)</label>
+                      <textarea id="capa-preventive-${c.id}" class="form-textarea" style="min-height:3.5rem;">${c.preventiveAction || ''}</textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                      <label>Assigned Case Owner</label>
+                      <input type="text" id="capa-owner-${c.id}" class="form-input" value="${c.owner || ''}" />
+                    </div>
+                    <div class="form-group">
+                      <label>Case Status</label>
+                      <select id="capa-status-${c.id}" class="form-select">
+                        <option value="Draft" ${c.status === 'Draft' ? 'selected' : ''}>Draft</option>
+                        <option value="Investigation" ${c.status === 'Investigation' ? 'selected' : ''}>Investigation</option>
+                        <option value="ActionPlan" ${c.status === 'ActionPlan' ? 'selected' : ''}>Action Plan</option>
+                        <option value="Verification" ${c.status === 'Verification' ? 'selected' : ''}>Verification</option>
+                        <option value="Closed" ${c.status === 'Closed' ? 'selected' : ''}>Closed (Approve closure)</option>
+                      </select>
+                    </div>
+                    <div class="form-group" style="display:flex; justify-content:flex-end; align-items:flex-end;">
+                      <div style="display:flex; gap:0.5rem; width:100%;">
+                        <button type="button" class="btn-action btn-action-danger" style="flex:1; justify-content:center; padding: 0.5rem;" onclick="deleteCapaItem('${c.id}')">Delete Case</button>
+                        <button type="button" class="btn-action" style="flex:1; justify-content:center; padding: 0.5rem;" onclick="saveCapaItem('${c.id}')">Save Changes</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filterCapa() {
+      const searchVal = document.getElementById('capa-search').value.toLowerCase();
+      const statusVal = document.getElementById('capa-filter-status').value;
+
+      const filtered = capas.filter(c => {
+        const matchesSearch = c.title.toLowerCase().includes(searchVal) || 
+                              c.defectDescription.toLowerCase().includes(searchVal) || 
+                              c.owner.toLowerCase().includes(searchVal);
+        const matchesStatus = statusVal === 'All' || c.status === statusVal;
+        return matchesSearch && matchesStatus;
+      });
+
+      renderCapa(filtered);
+    }
+
+
+    // ==========================================
+    // 4. EVENT HANDLING & SUBMISSIONS
+    // ==========================================
+    
+    // Toggle element helper
+    function toggleElement(id) {
+      const elem = document.getElementById(id);
+      if (elem.style.display === 'none' || !elem.style.display) {
+        elem.style.display = 'block';
+      } else {
+        elem.style.display = 'none';
+      }
+    }
+
+    // Modal Control
+    function openProgramModal(progId = null) {
+      const modal = document.getElementById('program-modal');
+      const title = document.getElementById('program-modal-title');
+      const form = document.getElementById('program-form');
+      
+      // Reset
+      form.reset();
+      document.getElementById('edit-program-id').value = '';
+      
+      if (progId) {
+        const p = projects.find(item => item.id === progId);
+        if (p) {
+          title.textContent = "Edit APQP Quality Program";
+          document.getElementById('edit-program-id').value = p.id;
+          document.getElementById('prog-name').value = p.name;
+          document.getElementById('prog-part').value = p.partNumber;
+          document.getElementById('prog-cust').value = p.customer;
+          document.getElementById('prog-status').value = p.status;
+          document.getElementById('prog-launch').value = p.launchDate;
+        }
+      } else {
+        title.textContent = "Create APQP Quality Program";
+        document.getElementById('prog-launch').value = new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      }
+
+      modal.classList.add('active');
+    }
+
+    function closeProgramModal() {
+      document.getElementById('program-modal').classList.remove('active');
+    }
+
+    // Create / Update Program
+    function handleProgramSubmit(e) {
+      e.preventDefault();
+      const id = document.getElementById('edit-program-id').value;
+      const name = document.getElementById('prog-name').value;
+      const partNumber = document.getElementById('prog-part').value;
+      const customer = document.getElementById('prog-cust').value;
+      const status = document.getElementById('prog-status').value;
+      const launchDate = document.getElementById('prog-launch').value;
+
+      if (id) {
+        // Edit
+        const idx = projects.findIndex(p => p.id === id);
+        if (idx !== -1) {
+          projects[idx] = { ...projects[idx], name, partNumber, customer, status, launchDate };
+          showToast('APQP Program settings saved successfully!', 'success');
+        }
+      } else {
+        // Create
+        const newId = `proj-${Date.now()}`;
+        const newProj = {
+          id: newId,
+          name,
+          partNumber,
+          customer,
+          status,
+          progress: status === 'Planning' ? 10 : status === 'Design' ? 30 : 50,
+          launchDate,
+          createdAt: new Date().toISOString().split('T')[0]
+        };
+        projects.push(newProj);
+
+        // Auto initialize PPAPs for the new program
+        PPAP_ELEMENT_CODES.forEach((elem, idx) => {
+          ppaps.push({
+            id: `ppap-${newId}-${idx}`,
+            projectId: newId,
+            elementCode: elem.code,
+            elementName: elem.name,
+            status: 'Not Started',
+            submittedBy: '',
+            submittedAt: '',
+            comments: ''
+          });
+        });
+
+        showToast('Created new APQP quality program!', 'success');
+      }
+
+      saveState();
+      closeProgramModal();
+      renderPrograms();
+      populateProgramSelects();
+    }
+
+    // Update Stage Gate directly from details header
+    function updateProjectStageGate() {
+      const p = projects.find(item => item.id === appState.activeProgramId);
+      if (!p) return;
+
+      const newStage = document.getElementById('detail-project-status').value;
+      p.status = newStage;
+
+      // recalculate progress
+      let baseProgress = p.progress;
+      if (newStage === 'Planning') baseProgress = 10;
+      else if (newStage === 'Design') baseProgress = 30;
+      else if (newStage === 'ProcessDev') baseProgress = 50;
+      else if (newStage === 'Validation') baseProgress = 75;
+      else if (newStage === 'Production') baseProgress = 100;
+
+      p.progress = baseProgress;
+      saveState();
+      showToast(`Program stage shifted successfully to ${newStage}!`, 'success');
+      renderProgramDetailsWorkspace();
+    }
+
+    // FMEA CRUD Handles
+    function handleFmeaSubmit(e) {
+      e.preventDefault();
+      const pId = appState.activeProgramId;
+      if (!pId) return;
+
+      const step = document.getElementById('fmea-step').value;
+      const mode = document.getElementById('fmea-mode').value;
+      const effects = document.getElementById('fmea-effects').value;
+      const sev = Number(document.getElementById('fmea-sev').value);
+      const causes = document.getElementById('fmea-causes').value;
+      const occ = Number(document.getElementById('fmea-occ').value);
+      const controls = document.getElementById('fmea-controls').value;
+      const det = Number(document.getElementById('fmea-det').value);
+      const recAction = document.getElementById('fmea-action').value;
+      const responsibility = document.getElementById('fmea-owner').value;
+      const actionStatus = document.getElementById('fmea-status').value;
+
+      if (appState.fmeaEditingId) {
+        // Edit existing
+        const idx = fmeas.findIndex(f => f.id === appState.fmeaEditingId);
+        if (idx !== -1) {
+          fmeas[idx] = {
+            id: appState.fmeaEditingId,
+            projectId: pId,
+            processStep: step,
+            potentialFailureMode: mode,
+            potentialFailureEffects: effects,
+            severity: sev,
+            potentialCauses: causes,
+            occurrence: occ,
+            currentControls: controls,
+            detection: det,
+            rpn: sev * occ * det,
+            recommendedActions: recAction,
+            actionResponsibility: responsibility,
+            actionStatus: actionStatus
+          };
+          showToast('Modified failure mode analysis row!', 'success');
+        }
+        appState.fmeaEditingId = null;
+      } else {
+        // Create new
+        const newFmea = {
+          id: `fmea-${Date.now()}`,
+          projectId: pId,
+          processStep: step,
+          potentialFailureMode: mode,
+          potentialFailureEffects: effects,
+          severity: sev,
+          potentialCauses: causes,
+          occurrence: occ,
+          currentControls: controls,
+          detection: det,
+          rpn: sev * occ * det,
+          recommendedActions: recAction,
+          actionResponsibility: responsibility,
+          actionStatus: actionStatus
+        };
+        fmeas.push(newFmea);
+        showToast('Successfully recorded new hazard analysis row!', 'success');
+      }
+
+      saveState();
+      renderProgramDetailsWorkspace();
+    }
+
+    function editFmeaItem(id) {
+      const f = fmeas.find(item => item.id === id);
+      if (!f) return;
+
+      appState.fmeaEditingId = f.id;
+      
+      // Populate fields
+      document.getElementById('fmea-form-title').textContent = "Modify Worksheet FMEA Row";
+      document.getElementById('fmea-step').value = f.processStep;
+      document.getElementById('fmea-mode').value = f.potentialFailureMode;
+      document.getElementById('fmea-effects').value = f.potentialFailureEffects;
+      document.getElementById('fmea-sev').value = f.severity;
+      document.getElementById('fmea-causes').value = f.potentialCauses;
+      document.getElementById('fmea-occ').value = f.occurrence;
+      document.getElementById('fmea-controls').value = f.currentControls;
+      document.getElementById('fmea-det').value = f.detection;
+      document.getElementById('fmea-action').value = f.recommendedActions || '';
+      document.getElementById('fmea-owner').value = f.actionResponsibility || '';
+      document.getElementById('fmea-status').value = f.actionStatus || 'Open';
+
+      document.getElementById('fmea-row-form').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function deleteFmeaItem(id) {
+      if (confirm('Permanently remove this FMEA analysis line from the program registry?')) {
+        fmeas = fmeas.filter(item => item.id !== id);
+        saveState();
+        showToast('FMEA risk line removed.', 'info');
+        renderProgramDetailsWorkspace();
+      }
+    }
+
+    // AI FMEA Copilot Call
+    function runFmeaCopilot() {
+      const inputVal = document.getElementById('fmea-copilot-input').value.trim();
+      if (!inputVal) {
+        showToast('Please type a process step first (e.g. Mold, welding)', 'warning');
+        return;
+      }
+
+      const btnText = document.getElementById('copilot-btn-text');
+      btnText.textContent = "AI Analysis Running...";
+      
+      setTimeout(() => {
+        const generated = simulateFmeaAiSuggest(inputVal);
+        fmeas.push(...generated);
+        saveState();
+        showToast(`Gemini analyzed step! Drafted ${generated.length} risk mitigation lines successfully!`, 'success');
+        
+        btnText.textContent = "Generate with AI";
+        document.getElementById('fmea-copilot-input').value = '';
+        renderProgramDetailsWorkspace();
+      }, 1000);
+    }
+
+    // PPAP Document Checklist Gate handlers
+    function editPpapRow(id) {
+      appState.ppapEditingId = id;
+      renderProgramDetailsWorkspace();
+    }
+
+    function cancelPpapEdit() {
+      appState.ppapEditingId = null;
+      renderProgramDetailsWorkspace();
+    }
+
+    function savePpapRow(id) {
+      const idx = ppaps.findIndex(pp => pp.id === id);
+      if (idx === -1) return;
+
+      const status = document.getElementById(`ppap-status-${id}`).value;
+      const reviewer = document.getElementById(`ppap-by-${id}`).value;
+      const comment = document.getElementById(`ppap-comment-${id}`).value;
+
+      ppaps[idx] = {
+        ...ppaps[idx],
+        status,
+        submittedBy: reviewer,
+        submittedAt: status !== 'Not Started' ? new Date().toISOString().split('T')[0] : '',
+        comments: comment
+      };
+
+      // update compliance progress based on approved ppaps
+      const pId = ppaps[idx].projectId;
+      const programPpap = ppaps.filter(pp => pp.projectId === pId);
+      const approvedCount = programPpap.filter(pp => pp.status === 'Approved').length;
+      
+      const pIdx = projects.findIndex(p => p.id === pId);
+      if (pIdx !== -1) {
+        let calculatedProgress = Math.round((approvedCount / programPpap.length) * 60); // worth up to 60%
+        
+        const stage = projects[pIdx].status;
+        if (stage === 'Planning') calculatedProgress += 10;
+        else if (stage === 'Design') calculatedProgress += 20;
+        else if (stage === 'ProcessDev') calculatedProgress += 30;
+        else if (stage === 'Validation') calculatedProgress += 40;
+        else if (stage === 'Production') calculatedProgress = 100;
+        
+        projects[pIdx].progress = Math.min(100, Math.max(10, calculatedProgress));
+      }
+
+      appState.ppapEditingId = null;
+      saveState();
+      showToast('PPAP document gate check updated!', 'success');
+      renderProgramDetailsWorkspace();
+    }
+
+    // CAPA Registry CRUD Handles
+    function handleCapaCreate(e) {
+      e.preventDefault();
+      const title = document.getElementById('capa-title').value;
+      const projectId = document.getElementById('capa-project-id').value;
+      const source = document.getElementById('capa-source').value;
+      const desc = document.getElementById('capa-desc').value;
+      const severity = document.getElementById('capa-severity').value;
+      const owner = document.getElementById('capa-owner').value;
+
+      const newCapa = {
+        id: `capa-${Date.now()}`,
+        title,
+        projectId: projectId || null,
+        defectDescription: desc,
+        source,
+        status: 'Draft',
+        severity,
+        containmentAction: '',
+        rootCauseAnalysis: {
+          method: '5Whys',
+          whys: ['', '', '', '', '']
+        },
+        correctiveAction: '',
+        preventiveAction: '',
+        owner,
+        createdAt: new Date().toISOString().split('T')[0]
+      };
+
+      capas.push(newCapa);
+      saveState();
+      
+      // Reset & close area
+      document.getElementById('capa-create-form').reset();
+      toggleElement('capa-form-area');
+      showToast('Quality deviation reported! CAPA containment initialized.', 'success');
+      renderCapa();
+    }
+
+    function saveCapaItem(id) {
+      const idx = capas.findIndex(c => c.id === id);
+      if (idx === -1) return;
+
+      const containmentAction = document.getElementById(`capa-containment-${id}`).value;
+      const correctiveAction = document.getElementById(`capa-corrective-${id}`).value;
+      const preventiveAction = document.getElementById(`capa-preventive-${id}`).value;
+      const owner = document.getElementById(`capa-owner-${id}`).value;
+      const status = document.getElementById(`capa-status-${id}`).value;
+
+      // Extract whys
+      const whys = [];
+      for (let i = 0; i < 5; i++) {
+        whys.push(document.getElementById(`capa-why-${id}-${i}`).value);
+      }
+
+      capas[idx] = {
+        ...capas[idx],
+        containmentAction,
+        correctiveAction,
+        preventiveAction,
+        owner,
+        status,
+        rootCauseAnalysis: {
+          method: '5Whys',
+          whys
+        },
+        closedAt: status === 'Closed' ? new Date().toISOString().split('T')[0] : undefined
+      };
+
+      saveState();
+      showToast('CAPA investigation logs saved successfully!', 'success');
+      renderCapa();
+    }
+
+    function deleteCapaItem(id) {
+      if (confirm('Are you sure you want to permanently delete this corrective action file?')) {
+        capas = capas.filter(c => c.id !== id);
+        saveState();
+        showToast('CAPA record deleted.', 'info');
+        renderCapa();
+      }
+    }
+
+    // AI CAPA Copilot Investigator
+    function runCapaCopilot(id) {
+      const idx = capas.findIndex(c => c.id === id);
+      if (idx === -1) return;
+
+      const c = capas[idx];
+      const result = simulateCapaAiInvestigate(c.title, c.defectDescription);
+
+      // Populate form values
+      document.getElementById(`capa-containment-${id}`).value = result.containment;
+      document.getElementById(`capa-corrective-${id}`).value = result.corrective;
+      document.getElementById(`capa-preventive-${id}`).value = result.preventive;
+      
+      // Populate whys
+      result.whys.forEach((w, i) => {
+        document.getElementById(`capa-why-${id}-${i}`).value = w;
+      });
+
+      document.getElementById(`capa-status-${id}`).value = "Investigation";
+
+      showToast('Gemini Six Sigma bot modeled standard root causes and corrective guidelines!', 'success');
+    }
+
+
+    // ==========================================
+    // 5. UTILITY FUNCTIONS
+    // ==========================================
+    
+    // Toast Notification System
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      
+      let icon = 'ℹ️';
+      if (type === 'success') icon = '✅';
+      if (type === 'warning') icon = '⚠️';
+      if (type === 'danger') icon = '🚨';
+
+      toast.innerHTML = `<span>${icon}</span><p>${message}</p>`;
+      container.appendChild(toast);
+
+      // Remove after 3.5s
+      setTimeout(() => {
+        toast.style.animation = "fadeIn 0.2s reverse ease-in forwards";
+        setTimeout(() => toast.remove(), 200);
+      }, 3500);
+    }
+
+    // Populate Program options in dropdown select menus
+    function populateProgramSelects() {
+      const select = document.getElementById('capa-project-id');
+      if (!select) return;
+
+      select.innerHTML = '<option value="">Generic (No Program)</option>' + 
+        projects.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+    }
+
+    // ==========================================
+    // 6. INITIALIZATION & SETUP
+    // ==========================================
+    window.onload = function() {
+      // Load Initial Screen State
+      renderDashboard();
+      renderPrograms();
+      renderCapa();
+      populateProgramSelects();
+    };
+  </script>
+</body>
+</html>
